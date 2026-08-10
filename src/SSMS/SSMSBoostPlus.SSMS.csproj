@@ -1,0 +1,209 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <RootNamespace>SSMSBoostPlus</RootNamespace>
+    <AssemblyName>SSMSBoostPlus.SSMS</AssemblyName>
+
+    <!-- VSIX packaging -->
+    <GeneratePkgDefFile>true</GeneratePkgDefFile>
+    <CreateVsixContainer>false</CreateVsixContainer>
+    <CopyBuildOutputToOutputDirectory>true</CopyBuildOutputToOutputDirectory>
+    <CopyOutputSymbolsToOutputDirectory>true</CopyOutputSymbolsToOutputDirectory>
+    <VSSDK_InstallPLVsix>true</VSSDK_InstallPLVsix>
+    <UseCodebase>true</UseCodebase>
+    <Platforms>AnyCPU;x64</Platforms>
+    </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Design" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- VS SDK (升级到最新 17.x 稳定版) -->
+    <PackageReference Include="Microsoft.AspNet.SignalR.Core" Version="2.4.3" />
+    <PackageReference Include="Microsoft.VisualStudio.Sdk" Version="17.14.40265" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.14.2142" />
+
+    <!-- SQL Server数据模型 (提供SqlConnectionInfo等数据类) -->
+    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="161.44091.41" />
+
+    <!-- WPF -->
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
+
+    <!-- WebView2 (Chromium 内核，替代 IE11 WebBrowser) -->
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+
+    <!-- Markdown 渲染 -->
+    <PackageReference Include="Markdown.Xaml" Version="1.0.0" />
+    <PackageReference Include="Markdig" Version="0.37.0" />
+
+    <!-- Core reference -->
+    <ProjectReference Include="..\Core\SSMSBoostPlus.Core.csproj" />
+    <ProjectReference Include="..\AI\SSMSBoostPlus.AI.csproj" />
+    
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- SSMS本地DLL引用 -->
+    <!-- 
+      注意：SSMS 22 内部 DLL（VSIntegration、ObjectExplorer）通过 SmartAssemblyLoader
+      在运行时动态加载，不在此处编译时引用。避免版本不匹配导致的 CS1705 错误。
+    -->
+    <!-- EnvDTE COM 互操作程序集 (提供强类型 DTE 接口) -->
+    <Reference Include="EnvDTE">
+      <HintPath>D:\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\PublicAssemblies\envdte.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <!-- VS Editor 程序集 (提供 IWpfTextView 等文本视图接口) -->
+    <Reference Include="Microsoft.VisualStudio.Editor">
+      <HintPath>D:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\CommonExtensions\Microsoft\Editor\Microsoft.VisualStudio.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.Text.UI.Wpf">
+      <HintPath>D:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\CommonExtensions\Microsoft\Editor\Microsoft.VisualStudio.Text.UI.Wpf.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.ComponentModelHost">
+      <HintPath>D:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\CommonExtensions\Platform\MefHosting\Microsoft.VisualStudio.ComponentModelHost.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- VSCT command table -->
+    <VSCTCompile Include="SSMSBoostPlus.vsct">
+      <ResourceName>Menus.ctmenu</ResourceName>
+      <SubType>Designer</SubType>
+    </VSCTCompile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Menu icon strip (referenced by VSCT Bitmaps) -->
+    <Content Include="Resources\MenuIcons.bmp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 流式 JS 渲染引擎（用于 AIStreamResultDialog 前端 Markdown 渲染） -->
+    <EmbeddedResource Include="Resources\stream-engine.js" />
+    <!-- marked.js Markdown 解析库（业界标准，替代手写解析器） -->
+    <EmbeddedResource Include="Resources\marked.min.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- VSIX manifest -->
+    <None Include="source.extension.vsixmanifest">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+
+  <!-- CTO嵌入DLL作为嵌入式资源 -->
+  <!-- ProvideMenuResource("Menus.ctmenu", 1) 需要 DLL 内部嵌入此资源 -->
+  <!-- 注意：.cto 在编译阶段（ManualVSCTCompile target）才生成， -->
+  <!-- ItemGroup Condition 在 MSBuild 评估阶段检查，首次编译时 .cto 可能不存在 -->
+  <!-- 因此必须做两次编译：第一次生成 .cto，第二次将其嵌入 DLL -->
+  <ItemGroup Condition="Exists('$(IntermediateOutputPath)SSMSBoostPlus.cto')">
+    <EmbeddedResource Include="$(IntermediateOutputPath)SSMSBoostPlus.cto">
+      <LogicalName>Menus.ctmenu</LogicalName>
+      <Visible>false</Visible>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- Import VSSDK targets for VSCT compilation and pkgdef generation -->
+  <Import Project="$(NuGetPackageRoot)microsoft.vssdk.buildtools\17.14.2142\tools\vssdk\Microsoft.VsSDK.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.vssdk.buildtools\17.14.2142\tools\vssdk\Microsoft.VsSDK.targets')" />
+
+  <!--
+    手动替代失败的 VSSDK Pipeline（因 .NET 10 SDK MSBuild 不兼容）。
+    VSSDK 17.14 的 CreatePkgDef 任务程序集(.17.0.dll) 在 .NET SDK 10 下报 VSSDK1032，
+    且 PrepareForRunDependsOn 被 SDK 覆盖导致 GeneratePkgDef 永远不被调度。
+    解决方案：直接调用 CreatePkgDef.exe CLI 工具生成 pkgdef。
+  -->
+  <PropertyGroup>
+    <VSSDKBinDir>$(NuGetPackageRoot)microsoft.vssdk.buildtools\17.14.2142\tools\vssdk\bin\</VSSDKBinDir>
+    <VSSDKIncDir>$(NuGetPackageRoot)microsoft.vssdk.buildtools\17.14.2142\tools\vssdk\inc</VSSDKIncDir>
+    <VSCTExe>$(VSSDKBinDir)VSCT.exe</VSCTExe>
+    <CreatePkgDefExe>$(VSSDKBinDir)CreatePkgDef.exe</CreatePkgDefExe>
+  </PropertyGroup>
+
+  <!--
+    手动替代失败的 VSSDK VSCT Pipeline（因 .NET 10 SDK MSBuild 不兼容）。
+    VSCT.exe 编译 .vsct → .cto → 部署脚本复制为 Menus.ctmenu
+  -->
+  <Target Name="ManualVSCTCompile" BeforeTargets="CoreCompile" Condition="'@(VSCTCompile)' != ''">
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <Exec Command="&quot;$(VSCTExe)&quot; &quot;%(VSCTCompile.FullPath)&quot; &quot;$(MSBuildProjectDirectory)\$(IntermediateOutputPath)%(VSCTCompile.FileName).cto&quot; -I$(VSSDKIncDir)" WorkingDirectory="$(MSBuildProjectDirectory)" Condition="Exists('$(VSCTExe)')" />
+    <!-- 将 .cto 复制为 Menus.ctmenu（文件模式部署备份） -->
+    <Copy SourceFiles="$(IntermediateOutputPath)SSMSBoostPlus.cto"
+          DestinationFiles="$(OutDir)Menus.ctmenu"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+  <!-- 不打开，和上面一段冲突 -->
+  <!-- <PropertyGroup>
+    <VSSDKBinDir>$(NuGetPackageRoot)microsoft.vssdk.buildtools\17.8.2365\tools\vssdk\bin\</VSSDKBinDir>
+    <VSSDKIncDir>$(NuGetPackageRoot)microsoft.vssdk.buildtools\17.8.2365\tools\vssdk\inc</VSSDKIncDir>
+    <VSCTExe>$(VSSDKBinDir)VSCT.exe</VSCTExe>
+    <CreatePkgDefExe>$(VSSDKBinDir)CreatePkgDef.exe</CreatePkgDefExe>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup> -->
+
+  <!--
+    禁用 VSSDK 的 GeneratePkgDef 目标（任务程序集与 .NET SDK 10 不兼容：VSSDK1032）
+    改用 ManualPkgDef 通过 CLI 调用 CreatePkgDef.exe
+  -->
+  <Target Name="GeneratePkgDef" />
+
+  <!-- Build 完成后调用 CreatePkgDef.exe 生成 .pkgdef 文件 -->
+  <Target Name="ManualPkgDef" AfterTargets="Build">
+    <Exec Command="&quot;$(CreatePkgDefExe)&quot; /out=&quot;$(MSBuildProjectDirectory)\$(IntermediateOutputPath)$(TargetName).pkgdef&quot; /codebase &quot;$(TargetPath)&quot;" 
+          WorkingDirectory="$(MSBuildProjectDirectory)" 
+          Condition="Exists('$(CreatePkgDefExe)') And Exists('$(TargetPath)')" />
+    <Copy SourceFiles="$(IntermediateOutputPath)$(TargetName).pkgdef" 
+          DestinationFiles="$(OutDir)$(TargetName).pkgdef" 
+          Condition="Exists('$(IntermediateOutputPath)$(TargetName).pkgdef')" />
+  </Target>
+
+  <!--
+    禁用 CreateMenuPkgDef 辅助目标（VSSDK 17.14 的该任务在 .NET SDK 10 下因 path 为空字符串崩溃）。
+    该目标仅用于强制 VS 刷新菜单缓存，不影响 pkgdef 核心生成功能。
+  -->
+  <Target Name="CreateMenuPkgDef" />
+
+  <!-- Skip template manifest generation -->
+  <Target Name="GenerateTemplatesManifest" />
+
+<!--  首次 部署先打开该行 然后生成代码使用 deploy-to-ssms.bat发布。 再关闭该行使用 deploy-to-ssms.bat发布
+    手动替代失败的 VSSDK Pipeline（因 .NET 10 SDK MSBuild 不兼容）。
+    步骤1：VSCT.exe 编译 .vsct → .cto → 作为 EmbeddedResource 嵌入 DLL
+    步骤2：CreatePkgDef.exe 生成 pkgdef
+    步骤3：部署脚本将 .cto 复制为 Menus.ctmenu（文件模式）
+  -->
+  <!--<Target Name="MergeCtoResource" Condition="false" />
+
+  <Target Name="ManualVSCTCompile" BeforeTargets="CoreCompile" Condition="'@(VSCTCompile)' != ''">
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <Exec Command="&quot;$(VSCTExe)&quot; &quot;%(VSCTCompile.FullPath)&quot; &quot;$(MSBuildProjectDirectory)\$(IntermediateOutputPath)%(VSCTCompile.FileName).cto&quot; -I$(VSSDKIncDir)" WorkingDirectory="$(MSBuildProjectDirectory)" Condition="Exists('$(VSCTExe)')" />
+  </Target>
+
+  <Target Name="ManualPkgDef" AfterTargets="Build">
+    <Exec Command="&quot;$(CreatePkgDefExe)&quot; /out=&quot;$(MSBuildProjectDirectory)\$(IntermediateOutputPath)$(TargetName).pkgdef&quot; /codebase &quot;$(TargetPath)&quot;" WorkingDirectory="$(MSBuildProjectDirectory)" Condition="Exists('$(CreatePkgDefExe)')" />
+    <Copy SourceFiles="$(IntermediateOutputPath)$(TargetName).pkgdef" DestinationFiles="$(OutDir)$(TargetName).pkgdef" Condition="Exists('$(IntermediateOutputPath)$(TargetName).pkgdef')" />
+  </Target>--> 
+
+  <!-- 不打开，和上面一段冲突 -->
+  <!-- <PropertyGroup>
+    <VSSDKBinDir>$(NuGetPackageRoot)microsoft.vssdk.buildtools\17.8.2365\tools\vssdk\bin\</VSSDKBinDir>
+    <VSSDKIncDir>$(NuGetPackageRoot)microsoft.vssdk.buildtools\17.8.2365\tools\vssdk\inc</VSSDKIncDir>
+    <VSCTExe>$(VSSDKBinDir)VSCT.exe</VSCTExe>
+    <CreatePkgDefExe>$(VSSDKBinDir)CreatePkgDef.exe</CreatePkgDefExe>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup> -->
+         
+</Project>

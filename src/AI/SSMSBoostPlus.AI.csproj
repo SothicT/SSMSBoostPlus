@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>10.0</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RootNamespace>SSMSBoostPlus.AI</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\SSMSBoostPlus.Core.csproj" />
+    <ProjectReference Include="..\Shared\SSMSBoostPlus.Shared.csproj" />
+  </ItemGroup>
+
+  <!-- 嵌入 Prompt Markdown 模板为资源 -->
+  <ItemGroup>
+    <EmbeddedResource Include="Prompts\Templates\*.md">
+      <LogicalName>PromptTemplates.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

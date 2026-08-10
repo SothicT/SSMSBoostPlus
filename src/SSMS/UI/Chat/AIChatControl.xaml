@@ -1,0 +1,313 @@
+<UserControl x:Class="SSMSBoostPlus.SSMS.UI.Chat.AIChatControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:SSMSBoostPlus.SSMS.UI.Chat"
+             xmlns:controls="clr-namespace:SSMSBoostPlus.SSMS.UI.Chat.Controls"
+             xmlns:converters="clr-namespace:SSMSBoostPlus.SSMS.UI.Chat.Converters"
+             Background="White">
+
+    <UserControl.Resources>
+        <converters:ChatRoleToAlignmentConverter x:Key="RoleToAlignment"/>
+        <converters:ChatRoleToBackgroundConverter x:Key="RoleToBackground"/>
+        <converters:ChatRoleToVisibilityConverter x:Key="RoleToVisibility"/>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibility"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+
+        <!-- 消息气泡样式（80% 宽度自适应，横屏限制最大宽度） -->
+        <Style x:Key="MessageBubbleStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="Margin" Value="4,3"/>
+            <Setter Property="MaxWidth" Value="680"/>
+        </Style>
+
+        <!-- 用户消息文本 -->
+        <Style x:Key="UserMessageText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+            <Setter Property="Foreground" Value="#1E293B"/>
+        </Style>
+
+        <!-- AI 消息文本（Markdown 渲染模式下不使用，但保留兼容） -->
+        <Style x:Key="AIMessageText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+            <Setter Property="Foreground" Value="#1E293B"/>
+        </Style>
+
+        <!-- MarkdownViewer 统一样式 -->
+        <Style x:Key="MarkdownViewerStyle" TargetType="controls:MarkdownViewer">
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Height" Value="Auto"/>
+        </Style>
+
+        <!-- 快捷按钮样式 -->
+        <Style x:Key="QuickButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="MinWidth" Value="68"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Margin" Value="3,0"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="Background" Value="#E8F0FE"/>
+            <Setter Property="BorderBrush" Value="#BBDEFB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#1A73E8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <!-- 操作按钮样式 -->
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Margin" Value="2,4"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="Background" Value="#E3F2FD"/>
+            <Setter Property="BorderBrush" Value="#90CAF9"/>
+            <Setter Property="Foreground" Value="#1565C0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <!-- DataTemplate：聊天消息 -->
+        <DataTemplate x:Key="ChatMessageTemplate">
+            <StackPanel Margin="0,4">
+                <!-- 消息头：角色 + 时间 -->
+                <StackPanel Orientation="Horizontal" Margin="6,0,6,2">
+                    <TextBlock FontWeight="Bold" FontSize="11" Foreground="#64748B">
+                        <Run Text="{Binding Role, StringFormat='{}{0}'}"/>
+                    </TextBlock>
+                    <TextBlock Text=" · " FontSize="11" Foreground="#94A3B8"/>
+                    <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:HH:mm}'}"
+                               FontSize="11" Foreground="#94A3B8"/>
+                    <!-- 流式进行中指示器 -->
+                    <TextBlock Text=" ✨ 生成中..." FontSize="11" Foreground="#1A73E8"
+                               Visibility="{Binding IsStreaming, Converter={StaticResource BoolToVisibility}}"
+                               Margin="6,0,0,0"/>
+                </StackPanel>
+
+                <!-- 消息气泡 -->
+                <Border Style="{StaticResource MessageBubbleStyle}"
+                        Background="{Binding Role, Converter={StaticResource RoleToBackground}}"
+                        HorizontalAlignment="{Binding Role, Converter={StaticResource RoleToAlignment}}">
+                    <StackPanel>
+                        <!-- 思考内容折叠区（仅 Assistant 消息且 ThinkingContent 非空时显示） -->
+                        <Border Background="#FFFAF5" CornerRadius="4" Padding="6,4" Margin="0,0,0,6"
+                                BorderBrush="#FDE68A" BorderThickness="1"
+                                Visibility="{Binding ThinkingContent, Converter={StaticResource StringToVisibility}}">
+                            <Expander Header="💭 AI 思考过程" IsExpanded="False"
+                                      FontSize="11" Foreground="#9C6C3C">
+                                <TextBox Text="{Binding ThinkingContent}"
+                                         IsReadOnly="True"
+                                         FontFamily="Consolas"
+                                         FontSize="11"
+                                         Background="#FFF8F0"
+                                         BorderThickness="0"
+                                         TextWrapping="Wrap"
+                                         MaxHeight="200"
+                                         VerticalScrollBarVisibility="Auto"
+                                         Margin="0,2,0,0"/>
+                            </Expander>
+                        </Border>
+
+                        <!-- 附带代码折叠区（仅 User 消息且 AttachedCode 非空时显示） -->
+                        <Border Background="#F8FAFC" CornerRadius="4" Padding="6,4" Margin="0,0,0,6"
+                                Visibility="{Binding AttachedCode, Converter={StaticResource StringToVisibility}}">
+                            <Expander Header="📎 附带代码" IsExpanded="False"
+                                      FontSize="11" Foreground="#64748B">
+                                <TextBox Text="{Binding AttachedCode}"
+                                         IsReadOnly="True"
+                                         FontFamily="Consolas"
+                                         FontSize="11"
+                                         Background="#F1F5F9"
+                                         BorderThickness="0"
+                                         TextWrapping="NoWrap"
+                                         HorizontalScrollBarVisibility="Auto"
+                                         VerticalScrollBarVisibility="Auto"
+                                         MaxHeight="150"
+                                         Margin="0,2,0,0"/>
+                            </Expander>
+                        </Border>
+
+                        <!-- 消息文本（Markdown 渲染，流式时实时更新） -->
+                        <controls:MarkdownViewer Markdown="{Binding Content}"
+                                                  Style="{StaticResource MarkdownViewerStyle}"/>
+
+                        <!-- 流式完成后显示的操作按钮列表 -->
+                        <ItemsControl ItemsSource="{Binding Actions}"
+                                      Margin="0,6,0,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding Label}"
+                                            Style="{StaticResource ActionButtonStyle}"
+                                            Tag="{Binding}"
+                                            Click="ActionButton_Click"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <!-- ============================================================ -->
+    <!--  主布局                                                       -->
+    <!-- ============================================================ -->
+    <Grid Margin="4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>   <!-- 快捷按钮栏 -->
+            <RowDefinition Height="*"/>      <!-- 消息列表 -->
+            <RowDefinition Height="Auto"/>   <!-- 输入区 -->
+            <RowDefinition Height="Auto"/>   <!-- 状态栏 -->
+        </Grid.RowDefinitions>
+
+        <!-- Row 0: 快捷按钮栏 -->
+        <Border Grid.Row="0" Background="#FAFAFA" Padding="6,6" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="快捷指令：" VerticalAlignment="Center"
+                           FontSize="11" Foreground="#9CA3AF" Margin="0,0,6,0"/>
+                <Button Content="📝 建议" Style="{StaticResource QuickButtonStyle}"
+                        Click="QuickSuggest_Click" ToolTip="对选中的 SQL 进行代码审查和建议"/>
+                <Button Content="💬 注释" Style="{StaticResource QuickButtonStyle}"
+                        Click="QuickComment_Click" ToolTip="为选中的 SQL 添加中文注释"/>
+                <Button Content="🎨 格式化" Style="{StaticResource QuickButtonStyle}"
+                        Click="QuickFormat_Click" ToolTip="按 Microsoft 风格格式化 SQL"/>
+                <Button Content="⚡ 性能分析" Style="{StaticResource QuickButtonStyle}"
+                        Click="QuickAnalyze_Click" ToolTip="分析执行计划和性能瓶颈"/>
+                <Button Content="🗑 清空对话" Style="{StaticResource QuickButtonStyle}"
+                        Click="ClearChat_Click" ToolTip="清空当前聊天记录"
+                        Margin="12,0,3,0" Foreground="#EF4444" Background="#FEF2F2" BorderBrush="#FECACA"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Row 1: 消息列表 -->
+        <Grid Grid.Row="1">
+            <!-- 空状态提示 -->
+            <Border x:Name="EmptyHint"
+                    Visibility="Visible"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Margin="30,40"
+                    MaxWidth="400">
+                <StackPanel>
+                    <TextBlock Text="🤖"
+                               FontSize="48"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,12"/>
+                    <TextBlock Text="你好！我是 SQL 专家助手"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="#334155"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               Margin="0,0,0,8"/>
+                    <TextBlock Text="在编辑器中选中 SQL 代码，然后在下方输入问题，我会帮你分析、优化、解释。"
+                               FontSize="12.5"
+                               Foreground="#94A3B8"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,6"/>
+                    <TextBlock Text="你也可以点击上方快捷按钮快速使用常用功能。"
+                               FontSize="12.5"
+                               Foreground="#94A3B8"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"/>
+                    <TextBlock Text="💡 提示：Ctrl+Enter 发送消息"
+                               FontSize="11"
+                               Foreground="#CBD5E1"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               Margin="0,16,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 消息滚动容器 -->
+            <ScrollViewer x:Name="MessageScrollViewer"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <StackPanel>
+                    <ItemsControl x:Name="MessagesItemsControl"
+                                  ItemTemplate="{StaticResource ChatMessageTemplate}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <!-- 打字指示器（AI 响应期间显示） -->
+                    <controls:TypingIndicator x:Name="TypingIndicatorControl"
+                                              Visibility="Collapsed"
+                                              Margin="0,4,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Row 2: 输入区 -->
+        <Border Grid.Row="2" Background="#FAFAFA" Padding="6" BorderBrush="#E5E7EB" BorderThickness="0,1,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBox x:Name="InputBox" Grid.Column="0"
+                         TextWrapping="WrapWithOverflow"
+                         AcceptsReturn="True"
+                         MinHeight="32" MaxHeight="120"
+                         VerticalScrollBarVisibility="Auto"
+                         FontSize="12"
+                         Padding="8,6"
+                         BorderBrush="#D1D5DB"
+                         Background="White"
+                         ToolTip="输入你的问题... (Ctrl+Enter 发送)">
+                </TextBox>
+
+                <Button x:Name="SendButton" Grid.Column="1"
+                        Content="📤" Width="36" Height="36"
+                        Margin="6,0,0,0"
+                        FontSize="14"
+                        Background="#1A73E8"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Click="SendButton_Click"
+                        ToolTip="发送消息 (Ctrl+Enter)"/>
+
+                <Button x:Name="CancelButton" Grid.Column="1"
+                        Content="⏹" Width="36" Height="36"
+                        Margin="6,0,0,0"
+                        FontSize="14"
+                        Background="#EF4444"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Click="CancelButton_Click"
+                        ToolTip="取消 AI 请求"
+                        Visibility="Collapsed"/>
+            </Grid>
+        </Border>
+
+        <!-- Row 3: 状态栏 -->
+        <Border Grid.Row="3" Background="#F8FAFC" Padding="6,3" BorderBrush="#E5E7EB" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock x:Name="StatusText"
+                           FontSize="10" Foreground="#94A3B8" Margin="4,0">
+                    就绪 — 在编辑器中选中 SQL 代码后开始对话
+                </TextBlock>
+                <!-- 右侧填充 -->
+                <TextBlock x:Name="SelectionInfoText"
+                           FontSize="10" Foreground="#64748B"
+                           HorizontalAlignment="Right" Margin="0,0,4,0">
+                </TextBlock>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

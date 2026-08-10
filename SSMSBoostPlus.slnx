@@ -1,0 +1,34 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Shared/">
+    <Project Path="src/Shared/SSMSBoostPlus.Shared.csproj">
+      <Platform Solution="Debug|x64" Project="x64" />
+    </Project>
+  </Folder>
+  <Folder Name="/src/Core/">
+    <Project Path="src/Core/SSMSBoostPlus.Core.csproj">
+      <Platform Solution="Debug|x64" Project="x64" />
+    </Project>
+  </Folder>
+  <Folder Name="/src/AI/">
+    <Project Path="src/AI/SSMSBoostPlus.AI.csproj">
+      <Platform Solution="Debug|x64" Project="x64" />
+    </Project>
+  </Folder>
+  <Folder Name="/src/SSMS/">
+    <Project Path="src/SSMS/SSMSBoostPlus.SSMS.csproj">
+      <Platform Solution="Debug|x64" Project="x64" />
+    </Project>
+  </Folder>
+  <Folder Name="/src/Installer/">
+    <Project Path="src/Installer/SSMSBoostPlus.Installer.csproj" />
+    <Project Path="src/Uninstaller/SSMSBoostPlus.Uninstaller.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SSMSBoostPlus.Tests/SSMSBoostPlus.Tests.csproj" />
+  </Folder>
+</Solution>

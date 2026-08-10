@@ -1,0 +1,358 @@
+<Window x:Class="SSMSBoostPlus.SSMS.UI.VersionHistory.LocalHistoryDiffDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:SSMSBoostPlus.SSMS.UI.VersionHistory"
+        Title="SSMSBoostPlus - 版本差异对比"
+        Width="1100" Height="650"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResizeWithGrip"
+        Background="#F5F5F5"
+        FontFamily="Segoe UI, Microsoft YaHei"
+        FontSize="11">
+
+    <Window.Resources>
+        <!-- Panel header style -->
+        <Style x:Key="PanelHeader" TargetType="Border">
+            <Setter Property="CornerRadius" Value="3,3,0,0"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="BorderThickness" Value="1,1,1,0"/>
+            <Setter Property="BorderBrush" Value="#D0D0D0"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <!-- Legend label style -->
+        <Style x:Key="LegendLabel" TargetType="Border">
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="Margin" Value="0,0,5,0"/>
+        </Style>
+
+        <!-- Modern button styles -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Background" Value="#0078D4"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="3" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#106EBE"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#005A9E"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ToolbarButton" TargetType="Button">
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Background" Value="#F5F5F5"/>
+            <Setter Property="BorderBrush" Value="#D0D0D0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E8E8E8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#D0D0D0"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ToggleButton style for Pin / WordWrap (ToggleButton dedicated) -->
+        <Style x:Key="ToolbarToggleButton" TargetType="ToggleButton">
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Background" Value="#F5F5F5"/>
+            <Setter Property="BorderBrush" Value="#D0D0D0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E8E8E8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#D0D0D0"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Background" Value="#DCEFFD"/>
+                                <Setter Property="BorderBrush" Value="#0078D4"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ListView item: diff line -->
+        <Style x:Key="DiffListItem" TargetType="ListViewItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Background" Value="{Binding RowBg}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListViewItem">
+                        <Border Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                            <ContentPresenter/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Row 0: Headers -->
+        <Grid Grid.Row="0" Margin="0,0,0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="4"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource PanelHeader}" Background="#FFF0F0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="🗄" FontSize="12" Margin="0,0,6,0"/>
+                    <TextBlock Grid.Column="1" x:Name="LeftHeader" Text="服务器当前定义"
+                               FontWeight="SemiBold" FontSize="12" Foreground="#C62828"/>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource PanelHeader}" Background="#F0FFF0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="📝" FontSize="12" Margin="0,0,6,0"/>
+                    <TextBlock Grid.Column="1" x:Name="RightHeader" Text="V12 - 07-07 09:30 (zhangsan)"
+                               FontWeight="SemiBold" FontSize="12" Foreground="#2E7D32"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Row 1: Diff Navigation + WordWrap + Legend + Sync Toggle -->
+        <Border Grid.Row="1" Margin="0,0,0,6" Padding="8,5"
+                Background="White" BorderBrush="#E0E0E0" BorderThickness="1"
+                CornerRadius="4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 差异导航 + 自动换行开关 -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center"
+                            Margin="0,0,12,0">
+                    <Button x:Name="PrevDiffButton" Content="上一个"
+                            Style="{StaticResource ToolbarButton}" Width="72" Height="24"
+                            Margin="0,0,6,0" Click="GoPrev_Click"
+                            ToolTip="跳转到上一个差异点"/>
+                    <TextBlock x:Name="DiffStatusText" Text="差异 0 / 0"
+                               VerticalAlignment="Center" FontSize="11" Foreground="#666666"
+                               Margin="0,0,6,0" MinWidth="64"/>
+                    <Button x:Name="NextDiffButton" Content="下一个"
+                            Style="{StaticResource ToolbarButton}" Width="72" Height="24"
+                            Click="GoNext_Click"
+                            ToolTip="跳转到下一个差异点"/>
+                    <ToggleButton x:Name="WordWrapButton" Content="自动换行"
+                                  Style="{StaticResource ToolbarToggleButton}" Width="84" Height="24"
+                                  Margin="12,0,0,0"
+                                  Checked="WordWrap_Checked" Unchecked="WordWrap_Unchecked"
+                                  ToolTip="切换自动换行（折行）/ 不换行 + 横向滚动"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock Text="图例" VerticalAlignment="Center" FontSize="11" Foreground="#888"
+                               Margin="0,0,8,0"/>
+                    <Border Style="{StaticResource LegendLabel}" Background="#FFEBEE">
+                        <TextBlock Text="删除" FontSize="10" Foreground="#C62828" FontWeight="SemiBold"/>
+                    </Border>
+                    <Border Style="{StaticResource LegendLabel}" Background="#E8F5E9">
+                        <TextBlock Text="新增" FontSize="10" Foreground="#2E7D32" FontWeight="SemiBold"/>
+                    </Border>
+                    <Border Style="{StaticResource LegendLabel}" Background="#FFF8E1">
+                        <TextBlock Text="修改" FontSize="10" Foreground="#E65100" FontWeight="SemiBold"/>
+                    </Border>
+                </StackPanel>
+                <ToggleButton x:Name="SyncScrollButton" Grid.Column="2"
+                              Content="🔗 同步滚动" Width="95" Height="26"
+                              FontSize="11"
+                              IsChecked="True"
+                              Style="{StaticResource ToolbarToggleButton}"
+                              Checked="SyncScroll_Checked" Unchecked="SyncScroll_Unchecked"
+                              ToolTip="开启/关闭左右面板滚动同步"/>
+            </Grid>
+        </Border>
+
+        <!-- Row 2: Diff View (virtualized ListView) -->
+        <Border Grid.Row="2" BorderBrush="#D0D0D0" BorderThickness="1" Background="White">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left Panel -->
+                <ListView x:Name="LeftList" Grid.Column="0"
+                          BorderThickness="0" Background="White"
+                          Focusable="False" SelectionMode="Single"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Standard"
+                          ScrollViewer.CanContentScroll="True">
+                    <ListView.ItemContainerStyle>
+                        <StaticResource ResourceKey="DiffListItem"/>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Background="{Binding LineNumberBg}"
+                                        Padding="4,0" SnapsToDevicePixels="True">
+                                    <TextBlock Text="{Binding LineNumberText}"
+                                               Foreground="#8C8C8C"
+                                               FontFamily="Consolas, Microsoft YaHei" FontSize="11"/>
+                                </Border>
+                                <TextBlock Grid.Column="1" FontFamily="Consolas, Microsoft YaHei" FontSize="11"
+                                           TextWrapping="Wrap" LineHeight="18"
+                                           LineStackingStrategy="BlockLineHeight"
+                                           Padding="4,0" MinHeight="18" SnapsToDevicePixels="True"
+                                           local:DiffTextBlock.DiffPieces="{Binding SubPieces}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <!-- Divider -->
+                <Border Grid.Column="1" Width="2" Background="#D0D0D0"/>
+
+                <!-- Right Panel -->
+                <ListView x:Name="RightList" Grid.Column="2"
+                          BorderThickness="0" Background="White"
+                          Focusable="False" SelectionMode="Single"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Standard"
+                          ScrollViewer.CanContentScroll="True">
+                    <ListView.ItemContainerStyle>
+                        <StaticResource ResourceKey="DiffListItem"/>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Background="{Binding LineNumberBg}"
+                                        Padding="4,0" SnapsToDevicePixels="True">
+                                    <TextBlock Text="{Binding LineNumberText}"
+                                               Foreground="#8C8C8C"
+                                               FontFamily="Consolas, Microsoft YaHei" FontSize="11"/>
+                                </Border>
+                                <TextBlock Grid.Column="1" FontFamily="Consolas, Microsoft YaHei" FontSize="11"
+                                           TextWrapping="Wrap" LineHeight="18"
+                                           LineStackingStrategy="BlockLineHeight"
+                                           Padding="4,0" MinHeight="18" SnapsToDevicePixels="True"
+                                           local:DiffTextBlock.DiffPieces="{Binding SubPieces}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <!-- Left Failure Overlay -->
+                <Border x:Name="LeftOverlay" Grid.Column="0" Background="#F0F0F0F0" Visibility="Collapsed">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="⚠ 加载失败" FontSize="14"
+                                   Foreground="#CC0000" HorizontalAlignment="Center"
+                                   Margin="0,0,0,10"/>
+                        <Button x:Name="LeftRetryButton" Content="重试"
+                                Style="{StaticResource PrimaryButton}"
+                                Width="80" Click="LeftRetryButton_Click"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Right Failure Overlay -->
+                <Border x:Name="RightOverlay" Grid.Column="2" Background="#F0F0F0F0" Visibility="Collapsed">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="⚠ 加载失败" FontSize="14"
+                                   Foreground="#CC0000" HorizontalAlignment="Center"
+                                   Margin="0,0,0,10"/>
+                        <Button x:Name="RightRetryButton" Content="重试"
+                                Style="{StaticResource PrimaryButton}"
+                                Width="80" Click="RightRetryButton_Click"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Row 3: Action Buttons -->
+        <Border Grid.Row="3" Margin="0,8,0,0" Padding="10,8"
+                Background="White" CornerRadius="4"
+                BorderBrush="#E0E0E0" BorderThickness="1">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="OpenInEditorButton" Content="在编辑器中打开"
+                        Style="{StaticResource PrimaryButton}"
+                        Width="130" Margin="0,0,8,0" Click="OpenInEditorButton_Click"/>
+                <Button x:Name="CloseButton" Content="关闭"
+                        Style="{StaticResource ToolbarButton}"
+                        Width="80" Click="CloseButton_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

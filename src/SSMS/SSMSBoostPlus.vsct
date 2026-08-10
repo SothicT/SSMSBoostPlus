@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!-- External resources (kept for reference; symbols defined inline below) -->
+  <Extern href="stdidcmd.h"/>
+  <Extern href="vsshlids.h"/>
+
+  <!-- ============================================================ -->
+  <!--  GUIDs                                                        -->
+  <!-- ============================================================ -->
+  <Symbols>
+    <!-- Package GUID (must match SSMSBoostPlusPackage.PackageGuidString) -->
+    <GuidSymbol name="guidSSMSBoostPlusPkg" value="{a1b2c3d4-e5f6-7890-abcd-ef1234567890}">
+      <!-- Menu group IDs -->
+      <IDSymbol name="MyMenuGroup" value="0x0000"/>
+    </GuidSymbol>
+
+    <!-- Standard Shell Main Menu (from vsshlids.h - defined inline for vsct.exe compatibility) -->
+    <GuidSymbol name="guidSHLMainMenu" value="{d309f791-903f-11d0-9efc-00a0c911004f}">
+      <IDSymbol name="IDM_VS_TOOL_MAINMENU" value="0x0000"/>
+      <!-- 代码编辑器右键上下文菜单（SSMS SQL 编辑器同样使用此 ID） -->
+      <IDSymbol name="IDM_VS_CTXT_CODEWIN" value="0x006E"/>
+    </GuidSymbol>
+
+    <!-- Standard Editor GUID for KeyBindings (from vsshlids.h - defined inline) -->
+    <GuidSymbol name="guidVSStd97" value="{5efc7975-14bc-11cf-9b2b-aa0057381919}">
+    </GuidSymbol>
+
+    <!-- Command set GUID (shared by all commands) -->
+    <GuidSymbol name="guidSSMSBoostPlusCmdSet" value="{c3d4e5f6-a7b8-9012-cdef-234567890123}">
+      <!-- ============================================================ -->
+      <!--  Command IDs                                                  -->
+      <!-- ============================================================ -->
+
+      <!-- Version Guard group (0x0100-0x010F) -->
+      <IDSymbol name="cmdidVersionGuardCheck"       value="0x0100"/>
+      <IDSymbol name="cmdidVersionGuardEnableToggle" value="0x0101"/>
+      <IDSymbol name="cmdidVersionGuardReloadFromDb" value="0x0102"/>
+
+      <!-- CODE WITH AI group (0x0200-0x020F) -->
+      <IDSymbol name="cmdidAISuggestions"    value="0x0200"/>
+      <IDSymbol name="cmdidAIComments"       value="0x0201"/>
+      <IDSymbol name="cmdidAIFormatting"     value="0x0202"/>
+      <IDSymbol name="cmdidAIPerformance"    value="0x0203"/>
+      <IDSymbol name="cmdidAIChatPanel"      value="0x0204"/>
+      <IDSymbol name="cmdidKeywordSearch"    value="0x0205"/>
+      <IDSymbol name="cmdidOpenScript"       value="0x0206"/>
+      <IDSymbol name="cmdidRefreshCache"     value="0x0207"/>
+
+      <!-- 配置组命令 (0x0300-0x030F)：扩容至 0x030A 容纳新功能 -->
+      <IDSymbol name="cmdidAIConfig"          value="0x0300"/>
+      <IDSymbol name="cmdidVersionGuardConfig" value="0x0301"/>
+      <IDSymbol name="cmdidVersionCheck"      value="0x0302"/>
+      <IDSymbol name="cmdidSqlTemplateConfig" value="0x0303"/>
+      <IDSymbol name="cmdidEnableLogging"     value="0x0304"/>
+      <IDSymbol name="cmdidEnableCompletion"  value="0x0305"/>
+
+      <!-- Local History group (0x0400-0x040F) -->
+      <IDSymbol name="cmdidLocalHistory"        value="0x0410"/>
+      <IDSymbol name="cmdidLocalHistoryConfig"  value="0x0420"/>
+
+      <!-- ============================================================ -->
+      <!--  Menu IDs                                                     -->
+      <!-- ============================================================ -->
+      <IDSymbol name="Menu_SSMSBoostPlus"          value="0x1000"/>
+      <IDSymbol name="Menu_CodeWithAI_Context"     value="0x1003"/>
+      <IDSymbol name="Menu_VersionGuard_Context"   value="0x1004"/>
+
+      <!-- ============================================================ -->
+      <!--  Group IDs                                                    -->
+      <!-- ============================================================ -->
+      <IDSymbol name="Group_TopMenu"                value="0x2000"/>
+      <IDSymbol name="Group_VersionGuard"           value="0x2001"/>
+      <IDSymbol name="Group_CodeWithAI"             value="0x2002"/>
+      <IDSymbol name="Group_Config"                 value="0x2003"/>
+      <IDSymbol name="Group_ContextCodeWithAI"      value="0x2004"/>
+      <IDSymbol name="Group_ContextVersionGuard"    value="0x2005"/>
+
+      <!-- 上下文子菜单内部的 Group（命令放在子菜单内，而非直接放在上下文菜单上） -->
+      <IDSymbol name="Group_ContextCodeWithAI_Items"    value="0x2006"/>
+      <IDSymbol name="Group_ContextVersionGuard_Items"  value="0x2007"/>
+
+      <!-- SQL 工具右键菜单 -->
+      <IDSymbol name="Menu_SqlTools_Context"            value="0x1008"/>
+      <IDSymbol name="Group_ContextSqlTools"            value="0x2008"/>
+      <IDSymbol name="Group_ContextSqlTools_Items"      value="0x2009"/>
+
+      </GuidSymbol>
+
+    <!-- SSMS SQL 编辑器上下文菜单 GUID（来自 SQLEditors.dll 命令集） -->
+    <GuidSymbol name="guidSSMSSQLEditorCmdSet" value="{5DD0BB59-7076-4C59-88D3-DE36931F63F0}">
+      <IDSymbol name="IDM_SSMS_SQL_EDITOR_CONTEXT" value="0x0100"/>
+    </GuidSymbol>
+  </Symbols>
+
+  <!-- ============================================================ -->
+  <!--  Commands                                                     -->
+  <!-- ============================================================ -->
+  <Commands package="guidSSMSBoostPlusPkg">
+
+    <!-- ========================================================== -->
+    <!--  Menus                                                      -->
+    <!-- ========================================================== -->
+    <Menus>
+
+      <!-- Top-level SSMSBoost++ menu on the main menu bar -->
+      <Menu guid="guidSSMSBoostPlusCmdSet" id="Menu_SSMSBoostPlus" type="Menu" priority="0x0000">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_TopMenu"/>
+        <CommandNameFlag>TextIsCommandName</CommandNameFlag>
+        <Strings>
+          <ButtonText>SSMSBoost++</ButtonText>
+          <CommandName>SSMSBoost++</CommandName>
+        </Strings>
+      </Menu>
+
+      <!-- CODE WITH AI sub-menu on right-click context menu -->
+      <Menu guid="guidSSMSBoostPlusCmdSet" id="Menu_CodeWithAI_Context" type="Menu" priority="0x0000">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextCodeWithAI"/>
+        <CommandNameFlag>TextIsCommandName</CommandNameFlag>
+        <Strings>
+          <ButtonText>AI 代码助手</ButtonText>
+          <CommandName>AI 代码助手</CommandName>
+        </Strings>
+      </Menu>
+
+      <!-- Version Guard sub-menu on right-click context menu -->
+      <Menu guid="guidSSMSBoostPlusCmdSet" id="Menu_VersionGuard_Context" type="Menu" priority="0x0000">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextVersionGuard"/>
+        <CommandNameFlag>TextIsCommandName</CommandNameFlag>
+        <Strings>
+          <ButtonText>版本守护</ButtonText>
+          <CommandName>版本守护</CommandName>
+        </Strings>
+      </Menu>
+
+      <!-- SQL 工具 sub-menu on right-click context menu -->
+      <Menu guid="guidSSMSBoostPlusCmdSet" id="Menu_SqlTools_Context" type="Menu" priority="0x0000">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextSqlTools"/>
+        <CommandNameFlag>TextIsCommandName</CommandNameFlag>
+        <Strings>
+          <ButtonText>SQL 工具</ButtonText>
+          <CommandName>SQL 工具</CommandName>
+        </Strings>
+      </Menu>
+
+    </Menus>
+
+    <!-- ========================================================== -->
+    <!--  Groups                                                     -->
+    <!-- ========================================================== -->
+    <Groups>
+
+      <!-- Top-level group: anchors SSMSBoost++ on the main menu bar -->
+      <Group guid="guidSSMSBoostPlusCmdSet" id="Group_TopMenu" priority="0x0900">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_TOOL_MAINMENU"/>
+      </Group>
+
+      <!-- CODE WITH AI group (top, highest frequency) -->
+      <Group guid="guidSSMSBoostPlusCmdSet" id="Group_CodeWithAI" priority="0x0100">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Menu_SSMSBoostPlus"/>
+      </Group>
+
+      <!-- Version Guard group (middle) -->
+      <Group guid="guidSSMSBoostPlusCmdSet" id="Group_VersionGuard" priority="0x0200">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Menu_SSMSBoostPlus"/>
+      </Group>
+
+      <!-- Separator between CODE WITH AI and Configuration -->
+      <Group guid="guidSSMSBoostPlusCmdSet" id="Group_Config" priority="0x0300">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Menu_SSMSBoostPlus"/>
+      </Group>
+
+      <!-- CODE WITH AI group on right-click context menu -->
+      <Group guid="guidSSMSBoostPlusCmdSet" id="Group_ContextCodeWithAI" priority="0x0500">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN"/>
+      </Group>
+
+      <!-- Version Guard group on right-click context menu -->
+      <Group guid="guidSSMSBoostPlusCmdSet" id="Group_ContextVersionGuard" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN"/>
+      </Group>
+
+      <!-- CODE WITH AI items inside context submenu -->
+      <Group guid="guidSSMSBoostPlusCmdSet" id="Group_ContextCodeWithAI_Items" priority="0x0100">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Menu_CodeWithAI_Context"/>
+      </Group>
+
+      <!-- Version Guard items inside context submenu -->
+      <Group guid="guidSSMSBoostPlusCmdSet" id="Group_ContextVersionGuard_Items" priority="0x0100">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Menu_VersionGuard_Context"/>
+      </Group>
+
+      <!-- SQL 工具 group on right-click context menu -->
+      <Group guid="guidSSMSBoostPlusCmdSet" id="Group_ContextSqlTools" priority="0x0700">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN"/>
+      </Group>
+
+      <!-- SQL 工具 items inside context submenu -->
+      <Group guid="guidSSMSBoostPlusCmdSet" id="Group_ContextSqlTools_Items" priority="0x0100">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Menu_SqlTools_Context"/>
+      </Group>
+
+    </Groups>
+
+    <!-- ========================================================== -->
+    <!--  Bitmaps (icon strips)                                      -->
+    <!-- ========================================================== -->
+    <Bitmaps>
+      <Bitmap guid="guidSSMSBoostPlusCmdSet" href="Resources\MenuIcons.bmp"/>
+    </Bitmaps>
+
+    <!-- ========================================================== -->
+    <!--  Buttons (menu items)                                       -->
+    <!-- ========================================================== -->
+    <Buttons>
+
+      <!-- ===== Version Guard Commands ===== -->
+
+      <!-- Enable/Disable Version Guard Toggle (checkable) -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidVersionGuardEnableToggle" priority="0x0100" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_VersionGuard"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>🔒 启用版本守护</ButtonText>
+          <CommandName>EnableVersionGuard</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- Enable/Disable Code Completion Toggle (checkable) - 放在启用版本守护下面 -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidEnableCompletion" priority="0x0110" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_VersionGuard"/>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>🔧 启用代码补全</ButtonText>
+          <CommandName>EnableCompletion</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- Check Current Script Version -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidVersionGuardCheck" priority="0x0120" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_VersionGuard"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>🔒 检查当前脚本版本&#x9;Ctrl+Shift+V</ButtonText>
+          <CommandName>CheckScriptVersion</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- Reload from Database - 暂时不需要，先注释 -->
+      <!--
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidVersionGuardReloadFromDb" priority="0x0130" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_VersionGuard"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>🔒 从数据库重新加载</ButtonText>
+          <CommandName>ReloadFromDatabase</CommandName>
+        </Strings>
+      </Button>
+      -->
+
+      <!-- Version Guard Configuration -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidVersionGuardConfig" priority="0x0200" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_Config"/>
+        <Strings>
+          <ButtonText>⚙ 版本守护设置...</ButtonText>
+          <CommandName>VersionGuardSettings</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- ===== Local History Commands ===== -->
+
+      <!-- Local History Tool Window -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidLocalHistory" priority="0x0140" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_VersionGuard"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>📋 版本历史...</ButtonText>
+          <CommandName>LocalHistory</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- Local History Configuration -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidLocalHistoryConfig" priority="0x0210" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_Config"/>
+        <Strings>
+          <ButtonText>⚙ 版本历史设置...</ButtonText>
+          <CommandName>LocalHistorySettings</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- Enable/Disable Logging Toggle (checkable) - 放在版本历史下面，默认不勾选 -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidEnableLogging" priority="0x0220" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_Config"/>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>📝 启用日志</ButtonText>
+          <CommandName>EnableLogging</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- ===== CODE WITH AI Commands ===== -->
+
+      <!-- AI Suggestions -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidAISuggestions" priority="0x0200" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_CodeWithAI"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>🤖 智能建议&#x9;Ctrl+Shift+A</ButtonText>
+          <CommandName>AISuggestions</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- AI Comments -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidAIComments" priority="0x0210" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_CodeWithAI"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>🤖 AI智能注释&#x9;Ctrl+Shift+C</ButtonText>
+          <CommandName>AIComments</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- AI Formatting -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidAIFormatting" priority="0x0220" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_CodeWithAI"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>🤖 AI自动格式化&#x9;Ctrl+Shift+F</ButtonText>
+          <CommandName>AIFormatting</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- AI Performance Analysis -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidAIPerformance" priority="0x0230" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_CodeWithAI"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>🤖 AI性能分析&#x9;Ctrl+Shift+P</ButtonText>
+          <CommandName>AIPerformance</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- AI Configuration -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidAIConfig" priority="0x0230" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_Config"/>
+        <Strings>
+          <ButtonText>⚙ AI 配置...</ButtonText>
+          <CommandName>AIConfiguration</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- SQL Template Configuration -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidSqlTemplateConfig" priority="0x0240" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_Config"/>
+        <Strings>
+          <ButtonText>📋 SQL 模板设置...</ButtonText>
+          <CommandName>SqlTemplateConfig</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- AI Chat Panel -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidAIChatPanel" priority="0x0250" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_CodeWithAI"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>💬 AI 对话面板&#x9;Ctrl+Shift+K</ButtonText>
+          <CommandName>AIChatPanel</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- ===== SQL 工具 Commands（仅右键菜单） ===== -->
+
+      <!-- Keyword Search（仅右键菜单，不在顶部菜单显示） -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidKeywordSearch" priority="0x0100" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextSqlTools_Items"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>🔍 关键词查询&#x9;F11</ButtonText>
+          <CommandName>KeywordSearch</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- Open Script（仅右键菜单，不在顶部菜单显示） -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidOpenScript" priority="0x0110" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextSqlTools_Items"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>📄 打开脚本&#x9;F12</ButtonText>
+          <CommandName>OpenScript</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- Refresh Database Object Cache -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidRefreshCache" priority="0x0250" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_Config"/>
+        <Strings>
+          <ButtonText>🔄 刷新对象缓存</ButtonText>
+          <CommandName>RefreshObjectCache</CommandName>
+        </Strings>
+      </Button>
+
+      <!-- 检查更新（放在最下面） -->
+      <Button guid="guidSSMSBoostPlusCmdSet" id="cmdidVersionCheck" priority="0x0260" type="Button">
+        <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_Config"/>
+        <Strings>
+          <ButtonText>🔄 检查更新</ButtonText>
+          <CommandName>CheckVersionUpdate</CommandName>
+        </Strings>
+      </Button>
+
+    </Buttons>
+
+  </Commands>
+
+  <!-- ============================================================ -->
+  <!--  Command Placements                                           -->
+  <!--  Place commands in both top menu AND context menu groups      -->
+  <!-- ============================================================ -->
+  <CommandPlacements>
+
+    <!-- Version Guard commands in context submenu -->
+    <CommandPlacement guid="guidSSMSBoostPlusCmdSet" id="cmdidVersionGuardEnableToggle" priority="0x0100">
+      <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextVersionGuard_Items"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSSMSBoostPlusCmdSet" id="cmdidVersionGuardCheck" priority="0x0110">
+      <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextVersionGuard_Items"/>
+    </CommandPlacement>
+    <!--
+    <CommandPlacement guid="guidSSMSBoostPlusCmdSet" id="cmdidVersionGuardReloadFromDb" priority="0x0120">
+      <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextVersionGuard_Items"/>
+    </CommandPlacement>
+    -->
+    <CommandPlacement guid="guidSSMSBoostPlusCmdSet" id="cmdidVersionGuardConfig" priority="0x0130">
+      <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextVersionGuard_Items"/>
+    </CommandPlacement>
+
+    <!-- CODE WITH AI commands in context submenu -->
+    <CommandPlacement guid="guidSSMSBoostPlusCmdSet" id="cmdidAISuggestions" priority="0x0200">
+      <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextCodeWithAI_Items"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSSMSBoostPlusCmdSet" id="cmdidAIComments" priority="0x0210">
+      <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextCodeWithAI_Items"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSSMSBoostPlusCmdSet" id="cmdidAIFormatting" priority="0x0220">
+      <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextCodeWithAI_Items"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSSMSBoostPlusCmdSet" id="cmdidAIPerformance" priority="0x0230">
+      <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextCodeWithAI_Items"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSSMSBoostPlusCmdSet" id="cmdidAIChatPanel" priority="0x0250">
+      <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextCodeWithAI_Items"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSSMSBoostPlusCmdSet" id="cmdidAIConfig" priority="0x0240">
+      <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextCodeWithAI_Items"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSSMSBoostPlusCmdSet" id="cmdidVersionCheck" priority="0x0250">
+      <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextVersionGuard_Items"/>
+    </CommandPlacement>
+
+    <!-- SQL 工具 commands in context submenu -->
+    <CommandPlacement guid="guidSSMSBoostPlusCmdSet" id="cmdidRefreshCache" priority="0x0120">
+      <Parent guid="guidSSMSBoostPlusCmdSet" id="Group_ContextSqlTools_Items"/>
+    </CommandPlacement>
+
+  </CommandPlacements>
+
+  <!-- ============================================================ -->
+  <!--  Key Bindings                                                 -->
+  <!-- ============================================================ -->
+  <KeyBindings>
+
+    <!-- Ctrl+Shift+V : Check script version -->
+    <KeyBinding guid="guidSSMSBoostPlusCmdSet" id="cmdidVersionGuardCheck"
+                editor="guidVSStd97" key1="V" mod1="Control Shift"/>
+
+    <!-- Ctrl+Shift+A : AI Suggestions -->
+    <KeyBinding guid="guidSSMSBoostPlusCmdSet" id="cmdidAISuggestions"
+                editor="guidVSStd97" key1="A" mod1="Control Shift"/>
+
+    <!-- Ctrl+Shift+C : AI Comments -->
+    <KeyBinding guid="guidSSMSBoostPlusCmdSet" id="cmdidAIComments"
+                editor="guidVSStd97" key1="C" mod1="Control Shift"/>
+
+    <!-- Ctrl+Shift+F : AI Formatting -->
+    <KeyBinding guid="guidSSMSBoostPlusCmdSet" id="cmdidAIFormatting"
+                editor="guidVSStd97" key1="F" mod1="Control Shift"/>
+
+    <!-- Ctrl+Shift+P : AI Performance -->
+    <KeyBinding guid="guidSSMSBoostPlusCmdSet" id="cmdidAIPerformance"
+                editor="guidVSStd97" key1="P" mod1="Control Shift"/>
+
+    <!-- Ctrl+Shift+K : AI Chat Panel -->
+    <KeyBinding guid="guidSSMSBoostPlusCmdSet" id="cmdidAIChatPanel"
+                editor="guidVSStd97" key1="K" mod1="Control Shift"/>
+
+    <!-- F12 : Open Script -->
+    <KeyBinding guid="guidSSMSBoostPlusCmdSet" id="cmdidOpenScript"
+                editor="guidVSStd97" key1="F12"/>
+
+    <!-- F11 : Keyword Search -->
+    <KeyBinding guid="guidSSMSBoostPlusCmdSet" id="cmdidKeywordSearch"
+                editor="guidVSStd97" key1="F11"/>
+
+  </KeyBindings>
+
+</CommandTable>

@@ -1,0 +1,234 @@
+<Window x:Class="SSMSBoostPlus.SSMS.UI.Dialogs.VersionWarningDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SSMSBoost++ - 检测到过时对象"
+        Width="850" MinWidth="700"
+        SizeToContent="Height"
+        MaxHeight="600"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResizeWithGrip"
+        FontFamily="Segoe UI, Microsoft YaHei"
+        Background="#FAFAFA">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../ScrollViewerStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- 比对结果颜色样式 -->
+            <Style x:Key="ComparisonBadge" TargetType="Border">
+                <Setter Property="CornerRadius" Value="3"/>
+                <Setter Property="Padding" Value="6,2"/>
+                <Setter Property="Margin" Value="2,0"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+            </Style>
+
+            <!-- DataGrid 行样式：浅灰色选中（确保选中时比对结果badge文字清晰可见） -->
+            <Style x:Key="LightSelectionRowStyle" TargetType="DataGridRow">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Height" Value="28"/>
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#E8E8E8"/>
+                        <Setter Property="BorderBrush" Value="#D0D0D0"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                    </Trigger>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#F0F0F0"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- DataGrid 列头样式：浅灰 -->
+            <Style x:Key="SoftHeaderStyle" TargetType="DataGridColumnHeader">
+                <Setter Property="Background" Value="#F5F5F5"/>
+                <Setter Property="Foreground" Value="#616161"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Height" Value="30"/>
+                <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                <Setter Property="Padding" Value="8,4"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                <Border Background="#FFF3E0" CornerRadius="12" Width="28" Height="28"
+                        Margin="0,0,8,0" VerticalAlignment="Center">
+                    <TextBlock Text="⚠" FontSize="16" HorizontalAlignment="Center"
+                               VerticalAlignment="Center" Foreground="#E65100"/>
+                </Border>
+                <TextBlock Text="检测到版本不一致"
+                           FontSize="16" FontWeight="Bold" Foreground="#424242"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock Text="以下数据库对象在脚本打开后被他人修改："
+                       Margin="36,0,0,0" Foreground="#757575" TextWrapping="Wrap" FontSize="12"/>
+        </StackPanel>
+
+        <!-- NEW新版本 指示器：同步后检测到DB有新版本时显示 -->
+        <TextBlock x:Name="NewVersionIndicator" Grid.Row="1"
+                   Text="NEW 新版本" FontSize="11" FontWeight="Bold"
+                   Foreground="#D32F2F" HorizontalAlignment="Left"
+                   Margin="0,0,0,4" Visibility="Collapsed">
+            <TextBlock.ToolTip>
+                同步完成后检测到数据库对象有新的修改版本，请重新审查。
+            </TextBlock.ToolTip>
+        </TextBlock>
+
+        <!-- Outdated Objects List -->
+        <DataGrid x:Name="ObjectsGrid" Grid.Row="2"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  RowStyle="{StaticResource LightSelectionRowStyle}"
+                  ColumnHeaderStyle="{StaticResource SoftHeaderStyle}"
+                  AlternatingRowBackground="#F8F8F8"
+                  SelectionMode="Single"
+                  HeadersVisibility="Column"
+                  CanUserResizeColumns="True"
+                  CanUserReorderColumns="False"
+                  HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Disabled"
+                  MaxHeight="300"
+                  Margin="0,0,0,12"
+                  BorderBrush="#E0E0E0"
+                  BorderThickness="1"
+                  GridLinesVisibility="Horizontal"
+                  HorizontalGridLinesBrush="#EEEEEE">
+            <!-- 覆盖系统高亮色为浅灰色，确保选中行文字可见 -->
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#E8E8E8"/>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black"/>
+                <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#E8E8E8"/>
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#F0F0F0"/>
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="Black"/>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="对象" Binding="{Binding ObjectRef.FullName}" Width="*"/>
+                <DataGridTextColumn Header="类型" Binding="{Binding ObjectRef.Type}" Width="80"/>
+                <DataGridTextColumn Header="数据库修改时间" Binding="{Binding DbModifyDate, StringFormat='yyyy-MM-dd HH:mm:ss'}" Width="150"/>
+                <DataGridTextColumn Header="脚本打开时间" Binding="{Binding ScriptOpenTime, StringFormat='yyyy-MM-dd HH:mm:ss'}" Width="150"/>
+                <DataGridTextColumn Header="时间差" Binding="{Binding TimeDifferenceText}" Width="100"/>
+                <DataGridTemplateColumn Header="比对结果" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource ComparisonBadge}"
+                                    Background="{Binding ComparisonType, Converter={x:Null}}"
+                                    x:Name="Badge">
+                                <TextBlock Text="{Binding ComparisonText}" FontSize="11"
+                                           FontWeight="SemiBold"
+                                           HorizontalAlignment="Center"/>
+                            </Border>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding ComparisonType}" Value="Identical">
+                                    <Setter TargetName="Badge" Property="Background" Value="#E8F5E9"/>
+                                    <Setter TargetName="Badge" Property="BorderBrush" Value="#A5D6A7"/>
+                                    <Setter TargetName="Badge" Property="BorderThickness" Value="1"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ComparisonType}" Value="OnlyAdded">
+                                    <Setter TargetName="Badge" Property="Background" Value="#E3F2FD"/>
+                                    <Setter TargetName="Badge" Property="BorderBrush" Value="#90CAF9"/>
+                                    <Setter TargetName="Badge" Property="BorderThickness" Value="1"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ComparisonType}" Value="OnlyDeleted">
+                                    <Setter TargetName="Badge" Property="Background" Value="#FFF8E1"/>
+                                    <Setter TargetName="Badge" Property="BorderBrush" Value="#FFE082"/>
+                                    <Setter TargetName="Badge" Property="BorderThickness" Value="1"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ComparisonType}" Value="Conflict">
+                                    <Setter TargetName="Badge" Property="Background" Value="#FCE4EC"/>
+                                    <Setter TargetName="Badge" Property="BorderBrush" Value="#F48FB1"/>
+                                    <Setter TargetName="Badge" Property="BorderThickness" Value="1"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ComparisonType}" Value="NotFound">
+                                    <Setter TargetName="Badge" Property="Background" Value="#F5F5F5"/>
+                                    <Setter TargetName="Badge" Property="BorderBrush" Value="#E0E0E0"/>
+                                    <Setter TargetName="Badge" Property="BorderThickness" Value="1"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="差异" Width="60" MinWidth="50">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="查看" Click="ViewDiff_Click" FontSize="11"
+                                    Padding="4,1" Background="#616161" Foreground="White"
+                                    BorderThickness="0" Cursor="Hand"
+                                    Tag="{Binding}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="审查状态" Width="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource ComparisonBadge}"
+                                    x:Name="ReviewBadge">
+                                <TextBlock Text="{Binding ReviewStatusText}" FontSize="11"
+                                           FontWeight="SemiBold"
+                                           HorizontalAlignment="Center"/>
+                            </Border>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsReviewed}" Value="True">
+                                    <Setter TargetName="ReviewBadge" Property="Background" Value="#E8F5E9"/>
+                                    <Setter TargetName="ReviewBadge" Property="BorderBrush" Value="#A5D6A7"/>
+                                    <Setter TargetName="ReviewBadge" Property="BorderThickness" Value="1"/>
+                                </DataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsReviewed}" Value="False"/>
+                                        <Condition Binding="{Binding RequiresReview}" Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter TargetName="ReviewBadge" Property="Background" Value="#FFF3E0"/>
+                                    <Setter TargetName="ReviewBadge" Property="BorderBrush" Value="#FFCC80"/>
+                                    <Setter TargetName="ReviewBadge" Property="BorderThickness" Value="1"/>
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsReviewed}" Value="False"/>
+                                        <Condition Binding="{Binding RequiresReview}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter TargetName="ReviewBadge" Property="Background" Value="#F5F5F5"/>
+                                    <Setter TargetName="ReviewBadge" Property="BorderBrush" Value="#E0E0E0"/>
+                                    <Setter TargetName="ReviewBadge" Property="BorderThickness" Value="1"/>
+                                </MultiDataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+            <Button x:Name="ShowDiffButton" Content="显示差异" Width="100" Height="32" Margin="0,0,8,0"
+                    Click="ShowDiff_Click" Background="#616161" Foreground="White" FontWeight="Bold"
+                    BorderThickness="0" Visibility="Collapsed"/>
+            <Button x:Name="LocalHistoryButton" Content="查看版本历史" Width="110" Height="32" Margin="0,0,8,0"
+                    Click="LocalHistory_Click" Background="#455A64" Foreground="White"
+                    BorderThickness="0"/>
+            <Button Content="从数据库重新加载" Width="130" Height="32" Margin="0,0,8,0"
+                    Click="ReloadFromDb_Click" Background="#455A64" Foreground="White"
+                    BorderThickness="0"/>
+            <Button x:Name="ContinueButton" Content="继续执行" Width="100" Height="32" Margin="0,0,8,0"
+                    Click="ContinueExecution_Click" Background="#E65100" Foreground="White"
+                    BorderThickness="0" FontWeight="SemiBold" IsEnabled="False"/>
+            <Button Content="取消" Width="80" Height="32"
+                    Click="Cancel_Click" Background="#BDBDBD" Foreground="#424242"
+                    BorderThickness="0"/>
+        </StackPanel>
+    </Grid>
+</Window>

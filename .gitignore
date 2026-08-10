@@ -1,0 +1,49 @@
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Build logs
+*.log
+
+# NuGet
+packages/
+*.nupkg
+
+# Test results
+TestResults/
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Output
+output/
+*.vsix
+
+# codebuddy
+.codebuddy/plans
+.workbuddy/
+build*.txt
+deploy-build.txt
+# deploy-to-ssms.bat
+src/SSMS/UI/Dialogs/SSMSBoostPlus.code-workspace
+
+# SDD: 规范变更追踪缓存（自动生成，不提交）
+.spec_cache/
+spec_diff_report_*.md

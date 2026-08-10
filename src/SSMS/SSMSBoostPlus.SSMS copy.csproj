@@ -1,0 +1,111 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <RootNamespace>SSMSBoostPlus</RootNamespace>
+    <AssemblyName>SSMSBoostPlus.SSMS</AssemblyName>
+
+    <!-- VSIX packaging -->
+    <GeneratePkgDefFile>true</GeneratePkgDefFile>
+    <CreateVsixContainer>false</CreateVsixContainer>
+    <CopyBuildOutputToOutputDirectory>true</CopyBuildOutputToOutputDirectory>
+    <CopyOutputSymbolsToOutputDirectory>true</CopyOutputSymbolsToOutputDirectory>
+    <VSSDK_InstallPLVsix>true</VSSDK_InstallPLVsix>
+    <UseCodebase>true</UseCodebase>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Design" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- VS SDK -->
+    <PackageReference Include="Microsoft.AspNet.SignalR.Core" Version="2.4.3" />
+    <PackageReference Include="Microsoft.VisualStudio.Sdk" Version="17.8.3459.41720" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.8.2273" />
+    <PackageReference Include="System.Security.Permissions" Version="8.0.0" />
+
+    <!-- SQL Server数据模型 (提供SqlConnectionInfo等数据类) -->
+    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="161.44091.41" />
+
+    <!-- WPF -->
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
+
+    <!-- Core reference -->
+    <ProjectReference Include="..\Core\SSMSBoostPlus.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- SSMS本地DLL引用 -->
+    <!-- 
+      注意：SSMS 22 内部 DLL（VSIntegration、ObjectExplorer）通过 SmartAssemblyLoader
+      在运行时动态加载，不在此处编译时引用。避免版本不匹配导致的 CS1705 错误。
+    -->
+    <!-- EnvDTE COM 互操作程序集 (提供强类型 DTE 接口) -->
+    <Reference Include="EnvDTE">
+      <HintPath>D:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\PublicAssemblies\envdte.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- VSCT command table -->
+    <VSCTCompile Include="SSMSBoostPlus.vsct">
+      <ResourceName>Menus.ctmenu</ResourceName>
+      <SubType>Designer</SubType>
+    </VSCTCompile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- VSIX manifest -->
+    <None Include="source.extension.vsixmanifest">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+
+  <!-- CTO嵌入DLL作为嵌入式资源 -->
+  <!--<ItemGroup Condition="Exists('$(IntermediateOutputPath)SSMSBoostPlus.cto')">
+    <EmbeddedResource Include="$(IntermediateOutputPath)SSMSBoostPlus.cto">
+      <LogicalName>Menus.ctmenu</LogicalName>
+      <Visible>false</Visible>
+    </EmbeddedResource>
+  </ItemGroup>-->
+
+  <!-- Import VSSDK targets for VSCT compilation and pkgdef generation -->
+  <Import Project="$(NuGetPackageRoot)microsoft.vssdk.buildtools\17.8.2365\tools\vssdk\Microsoft.VsSDK.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.vssdk.buildtools\17.8.2365\tools\vssdk\Microsoft.VsSDK.targets')" />
+
+  <!-- Skip template manifest generation -->
+  <Target Name="GenerateTemplatesManifest" />
+
+  <!--  首次 部署先打开该行 然后生成代码使用 deploy-to-ssms.bat发布。 再关闭该行使用 deploy-to-ssms.bat发布
+    手动替代失败的 VSSDK Pipeline（因 .NET 10 SDK MSBuild 不兼容）。
+    步骤1：VSCT.exe 编译 .vsct → .cto → 作为 EmbeddedResource 嵌入 DLL
+    步骤2：CreatePkgDef.exe 生成 pkgdef
+    步骤3：部署脚本将 .cto 复制为 Menus.ctmenu（文件模式）
+  -->
+  <!--<Target Name="MergeCtoResource" Condition="false" />-->
+
+  <!--<PropertyGroup>
+    <VSSDKBinDir>$(NuGetPackageRoot)microsoft.vssdk.buildtools\17.8.2365\tools\vssdk\bin\</VSSDKBinDir>
+    <VSSDKIncDir>$(NuGetPackageRoot)microsoft.vssdk.buildtools\17.8.2365\tools\vssdk\inc</VSSDKIncDir>
+    <VSCTExe>$(VSSDKBinDir)VSCT.exe</VSCTExe>
+    <CreatePkgDefExe>$(VSSDKBinDir)CreatePkgDef.exe</CreatePkgDefExe>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>-->
+
+  <!--<Target Name="ManualVSCTCompile" BeforeTargets="CoreCompile" Condition="'@(VSCTCompile)' != ''">
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <Exec Command="&quot;$(VSCTExe)&quot; &quot;%(VSCTCompile.FullPath)&quot; &quot;$(MSBuildProjectDirectory)\$(IntermediateOutputPath)%(VSCTCompile.FileName).cto&quot; -I$(VSSDKIncDir)" WorkingDirectory="$(MSBuildProjectDirectory)" Condition="Exists('$(VSCTExe)')" />
+  </Target>-->
+
+  <!--<Target Name="ManualPkgDef" AfterTargets="Build">
+    <Exec Command="&quot;$(CreatePkgDefExe)&quot; /out=&quot;$(MSBuildProjectDirectory)\$(IntermediateOutputPath)$(TargetName).pkgdef&quot; /codebase &quot;$(TargetPath)&quot;" WorkingDirectory="$(MSBuildProjectDirectory)" Condition="Exists('$(CreatePkgDefExe)')" />
+    <Copy SourceFiles="$(IntermediateOutputPath)$(TargetName).pkgdef" DestinationFiles="$(OutDir)$(TargetName).pkgdef" Condition="Exists('$(IntermediateOutputPath)$(TargetName).pkgdef')" />
+  </Target>-->
+
+</Project>

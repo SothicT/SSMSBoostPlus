@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSMSBoostPlus — AI大赛答辩材料</title>
+<style>
+  :root {
+    --primary: #1a73e8;
+    --dark: #1f2937;
+    --gray: #6b7280;
+    --light-bg: #f9fafb;
+    --border: #e5e7eb;
+    --success: #059669;
+    --warning: #d97706;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
+    color: var(--dark);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 15px;
+  }
+
+  /* Cover */
+  .cover {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #1a73e8 100%);
+    color: #fff; text-align: center; padding: 2rem;
+  }
+  .cover .badge {
+    display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+    border-radius: 100px; padding: 6px 20px; font-size: 13px; letter-spacing: 2px; margin-bottom: 2rem;
+  }
+  .cover h1 { font-size: 2.8rem; font-weight: 700; margin-bottom: .75rem; }
+  .cover .subtitle { font-size: 1.15rem; opacity: .85; margin-bottom: 2.5rem; max-width: 600px; }
+  .cover .meta { font-size: .9rem; opacity: .65; margin-top: 2rem; }
+  .cover .meta span { margin: 0 16px; }
+
+  /* Team box */
+  .team-box {
+    background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+    border-radius: 12px; padding: 1.5rem 2.5rem; margin: 1.5rem 0;
+  }
+  .team-box .team-name {
+    font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem; letter-spacing: 1px;
+  }
+  .team-box .team-members { display: flex; gap: 2rem; justify-content: center; }
+  .team-box .member {
+    background: rgba(255,255,255,.08); border-radius: 8px; padding: .6rem 1.2rem;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .team-box .member-role {
+    font-size: .75rem; background: var(--primary); padding: 2px 8px; border-radius: 4px;
+    font-weight: 600;
+  }
+  .team-box .member-name { font-weight: 600; }
+  .team-box .member-id { opacity: .65; font-size: .85rem; }
+
+  /* Sections */
+  section { max-width: 900px; margin: 0 auto; padding: 3.5rem 2rem; }
+  section + section { border-top: 1px solid var(--border); }
+  section h2 {
+    font-size: 1.65rem; font-weight: 700; color: var(--primary); margin-bottom: 1.5rem;
+    padding-bottom: .5rem; border-bottom: 3px solid var(--primary);
+    display: inline-block;
+  }
+  section h3 { font-size: 1.15rem; font-weight: 600; margin: 1.75rem 0 .75rem; color: var(--dark); }
+
+  /* Cards */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; margin: 1.25rem 0; }
+  .card {
+    background: var(--light-bg); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.5rem; transition: box-shadow .2s;
+  }
+  .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.06); }
+  .card .num { font-size: 2rem; font-weight: 700; color: var(--primary); }
+  .card .label { font-size: .85rem; color: var(--gray); margin-top: .25rem; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { padding: .65rem .85rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--light-bg); font-weight: 600; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  .highlight { color: var(--success); font-weight: 600; }
+
+  /* Flow diagram */
+  .flow { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; justify-content: center; margin: 1.5rem 0; }
+  .flow .node {
+    background: var(--primary); color: #fff; padding: .55rem 1.2rem; border-radius: 8px;
+    font-weight: 600; font-size: .95rem; white-space: nowrap;
+  }
+  .flow .arrow { font-size: 1.3rem; color: var(--gray); font-weight: 300; }
+  .flow .node.green { background: var(--success); }
+  .flow .node.orange { background: var(--warning); }
+  .flow .node.dark { background: var(--dark); }
+
+  /* Case block */
+  .case-block {
+    background: var(--light-bg); border-left: 4px solid var(--primary); border-radius: 0 8px 8px 0;
+    padding: 1.25rem 1.5rem; margin: 1.25rem 0;
+  }
+  .case-block .step { font-weight: 600; color: var(--primary); }
+  .case-block code { background: #e8e8e8; padding: 1px 6px; border-radius: 3px; font-size: .88rem; }
+
+  /* Asset grid */
+  .asset-section { margin: 1.5rem 0; }
+  .asset-section h4 { font-size: 1rem; font-weight: 600; margin-bottom: .5rem; }
+  .asset-tags { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .asset-tags span {
+    background: #e8f0fe; color: var(--primary); padding: .35rem .75rem;
+    border-radius: 6px; font-size: .85rem; font-weight: 500;
+  }
+  .asset-tags span.green { background: #ecfdf5; color: var(--success); }
+  .asset-tags span.orange { background: #fffbeb; color: var(--warning); }
+
+  /* Footer */
+  .end { text-align: center; padding: 4rem 2rem; background: var(--dark); color: #fff; }
+  .end p { opacity: .7; font-size: .9rem; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .cover h1 { font-size: 1.8rem; }
+    section { padding: 2rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== COVER ========== -->
+<div class="cover">
+  <div class="badge">AI CODING 大赛 · 答辩材料</div>
+  <h1>SSMSBoostPlus</h1>
+  <p class="subtitle">基于 AI 大模型的 SSMS 22 智能增强扩展 —— 全程由 CodeBuddy AI Agent 驱动开发，实现从需求到交付的 AI 全链路协作</p>
+
+  <div class="team-box">
+    <div class="team-name">数据炼金小分队</div>
+    <div class="team-members">
+      <div class="member">
+        <span class="member-role">队长</span>
+        <span class="member-name">谭镇阳</span>
+        <span class="member-id">100019624</span>
+      </div>
+      <div class="member">
+        <span class="member-role">队员</span>
+        <span class="member-name">姚绍博</span>
+        <span class="member-id">100019630</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <span>2026.07.20</span>
+    <span>C# / .NET / WPF / VSIX</span>
+    <span>CodeBuddy + Agent Team</span>
+  </div>
+</div>
+
+<!-- ========== 1. 作品概述 ========== -->
+<section>
+  <h2>一、作品概述</h2>
+  <p>SSMSBoostPlus 是一款面向 SQL Server 开发人员与 DBA 的 <strong>SSMS 22 扩展插件（VSIX）</strong>，全程由 CodeBuddy AI Agent 驱动开发。项目以<strong>版本管控</strong>与<strong>AI 辅助 SQL 审查</strong>为核心，内置六大功能模块，将数据库元数据（Schema、索引、执行计划）深度注入 AI 上下文，实现精准的 SQL 分析与版本防护。</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="num">6</div>
+      <div class="label">核心功能模块</div>
+    </div>
+    <div class="card">
+      <div class="num">199</div>
+      <div class="label">C# 源文件（~1.3 MB）</div>
+    </div>
+    <div class="card">
+      <div class="num">103</div>
+      <div class="label">单元测试用例（全部通过）</div>
+    </div>
+    <div class="card">
+      <div class="num">122</div>
+      <div class="label">Git 提交（2 个月）</div>
+    </div>
+  </div>
+
+  <h3>解决的痛点</h3>
+  <table>
+    <tr><th style="width:25%">痛点</th><th style="width:35%">传统方式</th><th>SSMSBoostPlus 方案</th></tr>
+    <tr><td>数据库对象变更难追溯</td><td>DDL Trigger 散落记录，需人工翻历史表拼凑</td><td>版本历史面板：可浏览、可对比、可恢复的时间线</td></tr>
+    <tr><td>多人协作版本冲突</td><td>执行前无感知"他人已改动"，易引发覆盖事故</td><td>版本守卫：F5 执行前自动拦截冲突，强制审查</td></tr>
+    <tr><td>SQL 审查依赖人工</td><td>安全审查、注释、格式化全手动，质量因人而异</td><td>AI 五大能力：Schema 注入 + 流式 Markdown 渲染</td></tr>
+    <tr><td>VSIX 构建链路脆弱</td><td>.NET SDK 10 + VSSDK 17.14 覆盖 Bug 导致扩展无法注册</td><td>ManualPkgDef 永久方案，绕过 VSSDK 原生管道</td></tr>
+  </table>
+</section>
+
+<!-- ========== 2. 提效价值 ========== -->
+<section>
+  <h2>二、提效价值与痛点解决</h2>
+
+  <h3>优化前基线</h3>
+  <p>在引入 AI 开发模式之前，同类 VSIX 扩展插件（参考团队既往经验）的开发周期通常为：</p>
+  <table>
+    <tr><th>开发阶段</th><th>传统人天估算</th><th>AI 辅助实际人天</th><th>提效比</th></tr>
+    <tr><td>需求分析与产品定义</td><td>3-5 人天</td><td>1.5 人天</td><td class="highlight">~65%</td></tr>
+    <tr><td>架构设计与技术选型</td><td>3-5 人天</td><td>1 人天</td><td class="highlight">~75%</td></tr>
+    <tr><td>Core 层开发（版本历史 + 版本守卫）</td><td>8-12 人天</td><td>3 人天</td><td class="highlight">~70%</td></tr>
+    <tr><td>SSMS UI 层开发（WPF + ToolWindow）</td><td>10-15 人天</td><td>4 人天</td><td class="highlight">~68%</td></tr>
+    <tr><td>AI 功能层（Prompt + Bridge + 流式）</td><td>8-12 人天</td><td>2.5 人天</td><td class="highlight">~72%</td></tr>
+    <tr><td>测试与质量保障</td><td>5-8 人天</td><td>2 人天</td><td class="highlight">~68%</td></tr>
+    <tr><td>构建部署与文档</td><td>3-5 人天</td><td>1 人天</td><td class="highlight">~75%</td></tr>
+    <tr style="font-weight:700;background:#e8f0fe"><td>合计</td><td>40-62 人天</td><td>15 人天</td><td class="highlight">~68% 综合提效</td></tr>
+  </table>
+
+  <h3>核心提效点</h3>
+  <table>
+    <tr><th style="width:22%">提效维度</th><th style="width:36%">传统模式</th><th style="width:28%">AI 模式</th><th style="width:14%">提效</th></tr>
+    <tr>
+      <td><strong>端到端打通</strong></td>
+      <td>需求→方案→编码→测试<strong>串行推进</strong>，每阶段需人工产出文档后才能进入下一阶段，单点阻塞蔓延全局</td>
+      <td>Agent Team <strong>并行协作</strong>：BA 产出需求规格后，Architect 设计技术方案的同时 Developer 同步编码、Tester 同步生成测试用例</td>
+      <td class="highlight">~68%</td>
+    </tr>
+    <tr>
+      <td><strong>问题诊断</strong></td>
+      <td>Bug 排查需在日志、源码、搜索引擎之间<strong>手动切换</strong>，平均每个 Bug 耗时 2-4 小时</td>
+      <td>error-diagnosis Skill <strong>自动解析日志→定位源码行号→搜索业界参考→输出根因+修复方案</strong></td>
+      <td class="highlight">~85%</td>
+    </tr>
+    <tr>
+      <td><strong>规范约束</strong></td>
+      <td>代码风格因人而异，Code Review 需反复沟通对齐规范，修正成本高</td>
+      <td>7 个 Rules 文件 <strong>自动注入 AI 会话</strong>，所有生成代码天然符合项目标准，规范零沟通成本</td>
+      <td class="highlight">~90%</td>
+    </tr>
+    <tr>
+      <td><strong>文档同步</strong></td>
+      <td>需求文档、技术方案、测试报告<strong>事后补写</strong>，常滞后或缺失</td>
+      <td>各阶段 Agent <strong>自动产出结构化 Markdown</strong>，93 篇文档随开发实时同步，实现规范驱动开发（SDD）闭环</td>
+      <td class="highlight">~100%</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ========== 3. AI全链路与人机协同 ========== -->
+<section>
+  <h2>三、AI 全链路与人机协同</h2>
+
+  <!-- 3.1 清晰的链路图 -->
+  <h3>3.1 清晰的协作链路图</h3>
+  <p>本项目定义了完整的 <strong>Agent Team 协作体系</strong>，五角色分工、六阶段推进、五道门控，确保 AI 在每个阶段都有明确定位，人类在关键决策点介入。</p>
+
+  <div class="flow">
+    <span class="node">PM 产品经理</span><span class="arrow">→</span>
+    <span class="node green">BA 需求分析师</span><span class="arrow">→</span>
+    <span class="node orange">Architect 架构师</span><span class="arrow">→</span>
+    <span class="node">Developer 工程师</span><span class="arrow">→</span>
+    <span class="node dark">Tester 测试工程师</span><span class="arrow">→</span>
+    <span class="node green">小H 发布部署</span>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <strong>阶段 1: 产品定义</strong>
+      <p style="font-size:.88rem;color:var(--gray);margin-top:.35rem">PM Agent 输出 PRD + 竞品分析 + 路线图，用户审核通过门控 G1 后进入需求分析</p>
+    </div>
+    <div class="card">
+      <strong>阶段 2: 需求分析</strong>
+      <p style="font-size:.88rem;color:var(--gray);margin-top:.35rem">BA Agent 拆解需求、定义字段规格、标注验收条件，通过门控 G2</p>
+    </div>
+    <div class="card">
+      <strong>阶段 3: 技术设计</strong>
+      <p style="font-size:.88rem;color:var(--gray);margin-top:.35rem">Architect Agent 技术选型、接口设计、数据模型，通过门控 G3</p>
+    </div>
+    <div class="card">
+      <strong>阶段 4-5: 开发与测试</strong>
+      <p style="font-size:.88rem;color:var(--gray);margin-top:.35rem">Developer Agent 编码 + TDD，Tester Agent 独立验证，通过门控 G4/G5</p>
+    </div>
+  </div>
+
+  <h4>先定义规范标准，再 Coding</h4>
+  <p>项目启动阶段即通过 AI Agent 定义了完整的开发规范体系（7 个 Rules 文件，存放于 <code>.codebuddy/rules/</code>，每次会话自动加载）：</p>
+  <table>
+    <tr><th style="width:18%">规范文件</th><th style="width:38%">覆盖内容</th><th style="width:44%">价值</th></tr>
+    <tr><td><strong>architecture.md</strong></td><td>单向依赖链、模块职责边界、CodeAnalysisService 位置、BridgeFactory 路由策略、接口化原则、Prompt 模板策略</td><td>杜绝循环依赖，模块边界清晰，AI 不会写出架构不当的代码</td></tr>
+    <tr><td><strong>build.md</strong></td><td>编译命令（.slnx 而非 .sln）、项目结构目标框架、PkgDef 手动生成机制、NuGet 配置、SSMS 内部 DLL 引用规则</td><td>避免构建链路踩坑，每次编译 AI 都知道正确的命令和注意事项</td></tr>
+    <tr><td><strong>code-style.md</strong></td><td>C# 命名规范、XAML 行为库（禁止 System.Windows.Interactivity）、配置与日志路径、异常处理模式、async/await 规范</td><td>代码风格统一，Code Review 零沟通成本</td></tr>
+    <tr><td><strong>deploy.md</strong></td><td>部署脚本、目标目录、部署清单（核心 DLL + 第三方依赖 + PkgDef）、部署流程、故障排查</td><td>AI 发布部署不踩坑，全流程自动化</td></tr>
+    <tr><td><strong>docs.md</strong></td><td>AIDoc 目录结构、命名规则（日期前缀等）、文档头部格式、文档维护规范</td><td>93 篇文档格式一致，可追溯、可检索</td></tr>
+    <tr><td><strong>test.md</strong></td><td>测试门禁、技术栈（xUnit/Moq/FluentAssertions）、命名规范（方法名_场景_预期）、新增测试要求</td><td>103 个测试用例风格统一，提交前强制通过</td></tr>
+    <tr><td><strong>team-collaboration-rules.mdc</strong></td><td>五角色定义、六阶段协作、五道门控、通信矩阵、质量门控、文档管理、Agent 使用指引</td><td>Agent Team 自动按流程协作，不跳过关键步骤</td></tr>
+  </table>
+  <p style="margin-top:.75rem;font-size:.9rem;color:var(--gray)">这 7 个 Rules 确保 AI 生成代码<strong>始终在统一的约束框架内</strong>，不会偏离项目标准，且可直接迁移到任何 C# / .NET 项目。</p>
+
+  <!-- 3.2 人工评审→迭代改进的真实案例 -->
+  <h3>3.2 人工评审→迭代改进 真实案例</h3>
+  <p>以下展示一个典型的<strong>「AI 生成 → 人类发现缺陷 → 诊断工具定位 → AI 修复 → 人体验证」</strong>闭环案例。</p>
+
+  <div class="case-block">
+    <p><span class="step">场景：</span>版本历史页签打开后永久显示"正在加载版本历史..."，核心功能不可用。</p>
+  </div>
+
+  <table>
+    <tr><th style="width:8%">轮次</th><th style="width:22%">阶段</th><th>内容</th></tr>
+    <tr>
+      <td style="text-align:center">1</td>
+      <td>AI 生成代码</td>
+      <td>Developer Agent 完成 LocalHistoryToolWindow 的 WPF UI 实现，包括 PinButton（钉住按钮）使用 <code>ToggleButton</code> 控件，并引用了 <code>ToolbarButton</code> 样式。</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">2</td>
+      <td>人工评审发现</td>
+      <td>用户部署后打开版本历史面板，<strong>始终显示占位文本</strong>，真控件未能创建。用户反馈问题截图。</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">3</td>
+      <td>error-diagnosis 诊断</td>
+      <td>Agent 读取 Serilog 日志（<code>ssmsboostplus-2026071617.log</code>），发现 <code>XamlParseException: "Button"TargetType 与元素"ToggleButton"的类型不匹配</code>，自动定位到 <code>LocalHistoryToolWindowControl.xaml:260-264</code>，确定 <code>ToggleButton</code> 引用了 <code>TargetType="Button"</code> 的样式导致 WPF 运行时崩溃。</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">4</td>
+      <td>AI 修复</td>
+      <td>Agent 提出两套方案：（A）新增 <code>TargetType="ToggleButton"</code> 的样式 <code>ToolbarToggleButton</code>；（B）将控件改为 <code>Button</code>。推荐方案 A（语义正确+选中态反馈），用户确认后 Agent 执行修复。</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">5</td>
+      <td>人体验证</td>
+      <td>编译→部署→打开版本历史面板，正常展示版本列表与差异对比，Bug 关闭。</td>
+    </tr>
+  </table>
+
+  <h4>闭环效率对比</h4>
+  <table>
+    <tr><th style="width:28%">指标</th><th style="width:36%">传统人工</th><th style="width:36%">AI 辅助</th></tr>
+    <tr><td>问题反馈 → 根因定位</td><td>30-60 分钟（日志检索 + 源码分析 + 搜索）</td><td class="highlight">~5 分钟（自动解析 + 定位 + 搜索）</td></tr>
+    <tr><td>同类隐患全项目排查</td><td>需逐文件人工审查，容易遗漏</td><td class="highlight">自动全局搜索，无遗漏</td></tr>
+    <tr><td>修复方案输出</td><td>自己构思 + 编码验证，不可追溯</td><td class="highlight">多方案对比 + 附带证据来源 + 预防措施沉淀</td></tr>
+    <tr><td>人工介入次数</td><td>全流程 6-8 次</td><td class="highlight">仅 2 次（反馈问题 + 确认方案）</td></tr>
+    <tr><td>知识沉淀</td><td>靠个人记忆，难以传承</td><td class="highlight">诊断报告 + 预防措施自动归档 AIDoc</td></tr>
+  </table>
+
+  <!-- 3.3 AI生成占比 -->
+  <h3>3.3 AI 生成占比</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="num" style="font-size:2.5rem">~75%</div>
+      <div class="label">C# 业务代码 AI 生成占比</div>
+    </div>
+    <div class="card">
+      <div class="num" style="font-size:2.5rem">~85%</div>
+      <div class="label">XAML UI 代码 AI 生成占比</div>
+    </div>
+    <div class="card">
+      <div class="num" style="font-size:2.5rem">~90%</div>
+      <div class="label">单元测试代码 AI 生成占比</div>
+    </div>
+    <div class="card">
+      <div class="num" style="font-size:2.5rem">~95%</div>
+      <div class="label">项目文档 AI 生成占比</div>
+    </div>
+  </div>
+  <table style="margin-top:.75rem">
+    <tr><th style="width:25%">估算维度</th><th>依据</th></tr>
+    <tr><td>Git 提交作者分布</td><td>AI 占绝大多数提交，人工主要做方案审核和关键逻辑微调</td></tr>
+    <tr><td>代码特征一致性</td><td>命名风格统一、注释模板一致、Prompt 驱动生成痕迹明显</td></tr>
+    <tr><td>XAML 模板化程度</td><td>WPF UI 代码高度模板化，AI 生成占比最高（~85%）</td></tr>
+    <tr><td>单元测试自动化</td><td>几乎全由 AI 按 TDD 流程生成，覆盖正向+异常+边界（~90%）</td></tr>
+    <tr><td>文档生成自动化</td><td>各阶段 Agent 自动产出，人工仅做审核修正（~95%）</td></tr>
+  </table>
+
+  <!-- 3.4 SDD是否使用 -->
+  <h3>3.4 SDD（规范驱动开发）</h3>
+  <p><strong>已使用</strong>。项目沉淀了 4 个 SDD 辅助脚本（位于 <code>tools/</code> 目录）：</p>
+  <table>
+    <tr><th>工具</th><th>用途</th></tr>
+    <tr><td><code>spec_tracker.py</code></td><td>追踪 AIDoc 目录下规范文件变更，分析影响范围，输出变更报告</td></tr>
+    <tr><td><code>spec_consistency.py</code></td><td>校验需求规格与代码实现的一致性</td></tr>
+    <tr><td><code>gate_check.py</code></td><td>门控自动化检查，确保编译+测试通过后才允许进入下一阶段</td></tr>
+    <tr><td><code>ac_to_tests.py</code></td><td>从需求验收条件（Acceptance Criteria）自动生成测试用例骨架</td></tr>
+  </table>
+  <h4>SDD 闭环链路</h4>
+  <div class="flow">
+    <span class="node dark">规范定义</span><span class="arrow">→</span>
+    <span class="node">影响追踪</span><span class="arrow">→</span>
+    <span class="node green">一致性校验</span><span class="arrow">→</span>
+    <span class="node orange">测试生成</span><span class="arrow">→</span>
+    <span class="node dark">反馈修正</span>
+  </div>
+  <table style="margin-top:.75rem">
+    <tr><th style="width:18%">环节</th><th style="width:22%">工具</th><th style="width:35%">说明</th><th style="width:25%">产出</th></tr>
+    <tr><td>规范定义</td><td>Rules + Agent</td><td>BA / Architect Agent 按规范模板输出结构化 Markdown</td><td>93 篇 AIDoc 文档</td></tr>
+    <tr><td>影响追踪</td><td>spec_tracker.py</td><td>检测规范文件变更，分析影响范围</td><td>变更报告</td></tr>
+    <tr><td>一致性校验</td><td>spec_consistency.py</td><td>校验需求规格与代码实现的一致性</td><td>偏离清单</td></tr>
+    <tr><td>测试生成</td><td>ac_to_tests.py</td><td>从验收条件自动生成测试用例骨架</td><td>测试代码</td></tr>
+    <tr><td>反馈修正</td><td>gate_check.py</td><td>门控自动化检查，编译+测试通过才放行</td><td>门控报告</td></tr>
+  </table>
+</section>
+
+<!-- ========== 4. 方法论沉淀 ========== -->
+<section>
+  <h2>四、方法论沉淀：可复用资产</h2>
+
+  <div class="asset-section">
+    <h4>7 个 Rules（编码规范，Auto-Load）</h4>
+    <div class="asset-tags">
+      <span>architecture.md</span><span>build.md</span><span>code-style.md</span>
+      <span>deploy.md</span><span>docs.md</span><span>test.md</span>
+      <span>team-collaboration-rules.mdc</span>
+    </div>
+    <p style="font-size:.85rem;color:var(--gray);margin-top:.35rem">每次 AI 会话自动加载，确保所有 Agent 在统一约束下生成代码。可直接迁移到任何 C# / .NET 项目。</p>
+  </div>
+
+  <div class="asset-section">
+    <h4>8 个 Skills（专业技能包）</h4>
+    <div class="asset-tags">
+      <span class="green">build-and-deploy</span><span class="green">error-diagnosis</span>
+      <span class="green">git-commit-push</span><span class="green">git-pull-merge</span>
+      <span class="green">issue-tracker</span><span class="green">release-publish</span>
+      <span class="orange">ssms-context-menu</span><span class="orange">weekly-report</span>
+    </div>
+    <p style="font-size:.85rem;color:var(--gray);margin-top:.35rem">绿色标签为<strong>通用型 Skill</strong>（可跨项目复用），橙色标签为项目特定 Skill。其中 error-diagnosis（自动日志解析→源码定位→修复建议）和 issue-tracker（全生命周期问题追踪）通用性最强。</p>
+  </div>
+
+  <div class="asset-section">
+    <h4>8 个 SubAgents（角色 Agent）</h4>
+    <div class="asset-tags">
+      <span>PM-Product-Manager</span><span>Common-BA</span><span>MES-BA</span>
+      <span>Architect</span><span>Developer</span><span>Tester</span>
+      <span class="green">小Q问题分析</span><span class="green">小H发布部署</span>
+    </div>
+    <p style="font-size:.85rem;color:var(--gray);margin-top:.35rem">五角色 Agent Team（PM→BA→Architect→Developer→Tester）覆盖需求到测试全链路，可直接复用于任何软件项目。MES-BA 展示行业扩展能力。</p>
+  </div>
+
+  <div class="asset-section">
+    <h4>4 个 SDD 工具脚本</h4>
+    <div class="asset-tags">
+      <span class="orange">spec_tracker.py</span><span class="orange">spec_consistency.py</span>
+      <span class="orange">gate_check.py</span><span class="orange">ac_to_tests.py</span>
+    </div>
+    <p style="font-size:.85rem;color:var(--gray);margin-top:.35rem">规范追踪、一致性校验、门控检查、验收条件转测试，可直接复用。</p>
+  </div>
+
+  <div class="asset-section" style="margin-top:1.5rem">
+    <h4>可复用范围评估</h4>
+    <table>
+      <tr><th>资产类型</th><th>数量</th><th>通用性</th><th>可迁移场景</th></tr>
+      <tr><td>Rules（编码规范）</td><td>7</td><td>80% 通用</td><td>任何 C# / .NET / VSIX 项目</td></tr>
+      <tr><td>Skills（技能包）</td><td>8</td><td>6 通用 + 2 项目特定</td><td>通用型可用于任何项目；项目特定提供模板思路</td></tr>
+      <tr><td>SubAgents（角色）</td><td>8</td><td>6 通用 + 2 项目特定</td><td>五角色 Agent Team 为通用框架；小Q/小H 模式可复制</td></tr>
+      <tr><td>SDD 工具</td><td>4</td><td>100% 通用</td><td>任何使用 Markdown 作为规范格式的项目</td></tr>
+      <tr><td>Agent Team 协作体系</td><td>1 套</td><td>100% 通用</td><td>六阶段、五门控、通信矩阵可复用于任何软件项目</td></tr>
+      <tr><td>AIDoc 文档体系</td><td>93 篇</td><td>模板通用</td><td>目录结构、命名规则、文档模板均可复用</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ========== 5. 总结 ========== -->
+<section>
+  <h2>五、总结</h2>
+
+  <p>SSMSBoostPlus 项目展示了 AI Coding 在<strong>企业级 VSIX 扩展插件</strong>开发中的完整实践。核心结论：</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <strong>全链路 AI 协同可行</strong>
+      <p style="font-size:.88rem;color:var(--gray);margin-top:.35rem">从需求到交付，五角色 Agent Team 实现了端到端协作，人类在关键决策点（门控）介入，其余流程自动化。</p>
+    </div>
+    <div class="card">
+      <strong>提效显著</strong>
+      <p style="font-size:.88rem;color:var(--gray);margin-top:.35rem">综合提效约 68%，从传统 40-62 人天压缩至 15 人天，问题诊断提效 85%。</p>
+    </div>
+    <div class="card">
+      <strong>资产可复用</strong>
+      <p style="font-size:.88rem;color:var(--gray);margin-top:.35rem">沉淀了 7 Rules + 8 Skills + 8 Agents + 4 SDD 工具 + 1 套协作体系，70%+ 可跨项目复用。</p>
+    </div>
+    <div class="card">
+      <strong>质量有保障</strong>
+      <p style="font-size:.88rem;color:var(--gray);margin-top:.35rem">103 个单元测试全部通过，编译门禁 100% 覆盖，测试驱动开发（TDD）全程执行。</p>
+    </div>
+  </div>
+
+  <h3>可复用方法论公式</h3>
+  <div class="flow">
+    <span class="node dark">① 定义规范<br><small>Rules 先行</small></span><span class="arrow">→</span>
+    <span class="node">② 角色分工<br><small>Agent Team</small></span><span class="arrow">→</span>
+    <span class="node green">③ 门控把关<br><small>5 道 Gates</small></span><span class="arrow">→</span>
+    <span class="node orange">④ 沉淀资产<br><small>Skills + Tools + Docs</small></span>
+  </div>
+  <p style="margin-top:1rem;font-size:.9rem;color:var(--gray)">这套模式已在 SSMSBoostPlus 项目中验证有效，可直接迁移到其他软件项目。</p>
+</section>
+
+<div class="end">
+  <p>SSMSBoostPlus · AI Coding 大赛答辩材料 · 2026.07.20</p>
+</div>
+
+</body>
+</html>

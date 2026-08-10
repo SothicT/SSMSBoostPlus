@@ -1,0 +1,18 @@
+{
+  "name": "diff-dialog-buttons",
+  "leadAgentId": "aa30d9c6b7054a18afe7bb27716c3cee",
+  "workspacePath": "f:/2.C#_Core/SSMSBoostPlus",
+  "createdAt": "2026-07-20T12:51:32.614Z",
+  "options": {
+    "workspacePath": "f:/2.C#_Core/SSMSBoostPlus",
+    "isAutoTeam": false
+  },
+  "members": [
+    {
+      "memberId": "team-lead@diff-dialog-buttons",
+      "name": "team-lead",
+      "role": "Team Lead - coordinates the team and interacts with the user"
+    }
+  ],
+  "isAutoTeam": false
+}

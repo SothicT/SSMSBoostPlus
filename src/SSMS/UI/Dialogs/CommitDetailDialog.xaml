@@ -1,0 +1,81 @@
+<Window x:Class="SSMSBoostPlus.SSMS.UI.Dialogs.CommitDetailDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SSMSBoostPlus - 版本差异详情"
+        Width="420"
+        Height="360"
+        WindowStyle="SingleBorderWindow"
+        ShowInTaskbar="True"
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen"
+        Background="#F8F8F8">
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <TextBlock Grid.Row="0"
+                   Text="版本差异详情"
+                   FontSize="15"
+                   FontWeight="Bold"
+                   Foreground="#2E75B6"
+                   Margin="0,0,0,6"/>
+
+        <!-- Version info -->
+        <Border Grid.Row="1"
+                Background="#F0F6FC"
+                CornerRadius="4"
+                BorderBrush="#DEEBF7"
+                BorderThickness="1"
+                Padding="10,6"
+                Margin="0,0,0,8">
+            <TextBlock x:Name="VersionInfoText"
+                       FontSize="12"
+                       Foreground="#333333"
+                       LineHeight="18"/>
+        </Border>
+
+        <!-- Commit list header -->
+        <TextBlock Grid.Row="2"
+                   x:Name="CommitHeaderText"
+                   FontSize="12"
+                   FontWeight="SemiBold"
+                   Foreground="#555555"
+                   Margin="0,0,0,2"/>
+
+        <!-- Scrollable commit list -->
+        <Border Grid.Row="2"
+                Background="White"
+                CornerRadius="4"
+                BorderBrush="#D0D0D0"
+                BorderThickness="1"
+                Padding="4"
+                Margin="0,16,0,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Auto">
+                <ItemsControl x:Name="CommitList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="4,3"
+                                    BorderBrush="#F0F0F0"
+                                    BorderThickness="0,0,0,1">
+                                <TextBlock Text="{Binding}"
+                                           FontSize="11"
+                                           Foreground="#333333"
+                                           TextWrapping="Wrap"
+                                           FontFamily="Consolas"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Close button -->
+    </Grid>
+</Window>

@@ -1,0 +1,89 @@
+<UserControl x:Class="SSMSBoostPlus.SSMS.UI.Chat.Controls.TypingIndicator"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="40" d:DesignWidth="200"
+             x:Name="TypingRoot">
+
+    <UserControl.Resources>
+        <!-- 圆点跳动动画 Storyboard -->
+        <Storyboard x:Key="DotAnimation" RepeatBehavior="Forever"
+                    AutoReverse="False">
+            <!-- 圆点1：先跳 -->
+            <DoubleAnimation Storyboard.TargetName="Dot1"
+                             Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                             From="0" To="-6" Duration="0:0:0.3"
+                             BeginTime="0:0:0.0" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="Dot1"
+                             Storyboard.TargetProperty="(UIElement.Opacity)"
+                             From="0.4" To="1.0" Duration="0:0:0.3"
+                             BeginTime="0:0:0.0" AutoReverse="True"/>
+
+            <!-- 圆点2：延迟 0.15s 跳 -->
+            <DoubleAnimation Storyboard.TargetName="Dot2"
+                             Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                             From="0" To="-6" Duration="0:0:0.3"
+                             BeginTime="0:0:0.15" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="Dot2"
+                             Storyboard.TargetProperty="(UIElement.Opacity)"
+                             From="0.4" To="1.0" Duration="0:0:0.3"
+                             BeginTime="0:0:0.15" AutoReverse="True"/>
+
+            <!-- 圆点3：延迟 0.3s 跳 -->
+            <DoubleAnimation Storyboard.TargetName="Dot3"
+                             Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                             From="0" To="-6" Duration="0:0:0.3"
+                             BeginTime="0:0:0.3" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="Dot3"
+                             Storyboard.TargetProperty="(UIElement.Opacity)"
+                             From="0.4" To="1.0" Duration="0:0:0.3"
+                             BeginTime="0:0:0.3" AutoReverse="True"/>
+        </Storyboard>
+    </UserControl.Resources>
+
+    <Border CornerRadius="12"
+            Background="#F3F4F6"
+            Padding="14,10"
+            Margin="4,3"
+            MaxWidth="120"
+            HorizontalAlignment="Left">
+
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Center">
+            <!-- 圆点1 -->
+            <Ellipse x:Name="Dot1"
+                     Width="8" Height="8"
+                     Fill="#1A73E8"
+                     Opacity="0.4"
+                     Margin="0,0,5,0">
+                <Ellipse.RenderTransform>
+                    <TranslateTransform/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+
+            <!-- 圆点2 -->
+            <Ellipse x:Name="Dot2"
+                     Width="8" Height="8"
+                     Fill="#1A73E8"
+                     Opacity="0.4"
+                     Margin="0,0,5,0">
+                <Ellipse.RenderTransform>
+                    <TranslateTransform/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+
+            <!-- 圆点3 -->
+            <Ellipse x:Name="Dot3"
+                     Width="8" Height="8"
+                     Fill="#1A73E8"
+                     Opacity="0.4">
+                <Ellipse.RenderTransform>
+                    <TranslateTransform/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+        </StackPanel>
+    </Border>
+
+</UserControl>
